@@ -633,6 +633,7 @@ module.exports = class bittrex extends Exchange {
             ohlcv['L'],
             ohlcv['C'],
             ohlcv['V'],
+            ohlcv['BV'],
         ];
     }
 
