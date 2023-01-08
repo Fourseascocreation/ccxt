@@ -3,7 +3,7 @@
 //  ---------------------------------------------------------------------------
 
 const Exchange = require ('./base/Exchange');
-const { ArgumentsRequired, BadSymbol, ExchangeError, ExchangeNotAvailable, AuthenticationError, InvalidOrder, InsufficientFunds, OrderNotFound, DDoSProtection, PermissionDenied, AddressPending, OnMaintenance, BadRequest, InvalidAddress } = require ('./base/errors');
+const { BadSymbol, ExchangeError, ExchangeNotAvailable, AuthenticationError, InvalidOrder, OrderImmediatelyFillable, OrderNotFillable, InsufficientFunds, OrderNotFound, DDoSProtection, PermissionDenied, AddressPending, OnMaintenance, BadRequest, InvalidAddress } = require ('./base/errors');
 const { TRUNCATE, TICK_SIZE } = require ('./base/functions/number');
 
 //  ---------------------------------------------------------------------------
@@ -228,6 +228,8 @@ module.exports = class bittrex extends Exchange {
                     'INVALID_ORDER': InvalidOrder,
                     'UUID_INVALID': OrderNotFound,
                     'RATE_NOT_PROVIDED': InvalidOrder, // createLimitBuyOrder ('ETH/BTC', 1, 0)
+                    'POST_ONLY_NOT_MET': OrderImmediatelyFillable,
+                    'FILL_OR_KILL_NOT_MET': OrderNotFillable,
                     'INVALID_MARKET': BadSymbol, // {"success":false,"message":"INVALID_MARKET","result":null,"explanation":null}
                     'WHITELIST_VIOLATION_IP': PermissionDenied,
                     'DUST_TRADE_DISALLOWED_MIN_VALUE': InvalidOrder,
@@ -254,6 +256,7 @@ module.exports = class bittrex extends Exchange {
                 },
                 'parseOrderStatus': false,
                 'hasAlreadyAuthenticatedSuccessfully': false, // a workaround for APIKEY_INVALID
+                'createOrderRequiresPrice': true,
                 // With certain currencies, like
                 // AEON, BTS, GXS, NXT, SBD, STEEM, STR, XEM, XLM, XMR, XRP
                 // an additional tag / memo / payment id is usually required by exchanges.
@@ -1084,176 +1087,156 @@ module.exports = class bittrex extends Exchange {
          * @param {float} amount how much of currency you want to trade in units of base currency
          * @param {float|undefined} price the price at which the order is to be fullfilled, in units of the quote currency, ignored in market orders
          * @param {object} params extra parameters specific to the bittrex api endpoint
+         * @param {bool|undefined} params.postOnly true to place a post only order
+         * @param {string} params.timeInForce GTC, IOC, FOK, PO
+         * @param {float} params.cost total to spend on order in units of quote currency if ceiling order
          * @returns {object} an [order structure]{@link https://docs.ccxt.com/en/latest/manual.html#order-structure}
          */
-        // A ceiling order is a market or limit order that allows you to specify
-        // the amount of quote currency you want to spend (or receive, if selling)
-        // instead of the quantity of the market currency (e.g. buy $100 USD of BTC
-        // at the current market BTC price)
         await this.loadMarkets ();
         const market = this.market (symbol);
-        let uppercaseType = undefined;
-        if (type !== undefined) {
-            uppercaseType = type.toUpperCase ();
-        }
-        const reverseId = market['baseId'] + '-' + market['quoteId'];
-        const stop = this.safeValue (params, 'stop');
-        const stopPrice = this.safeNumber2 (params, 'triggerPrice', 'stopPrice');
-        const request = {
-            'marketSymbol': reverseId, // SPOT and STOP
-            // 'direction': side.toUpperCase (), // SPOT, STOP 'orderToCreate'
-            // 'type': uppercaseType, // SPOT: LIMIT, MARKET, CEILING_LIMIT, CEILING_MARKET
-            // 'quantity': this.amountToPrecision (symbol, amount), // SPOT, required for limit orders, excluded for ceiling orders
-            // 'ceiling': this.priceToPrecision (symbol, price), // SPOT, required for ceiling orders, excluded for non-ceiling orders
-            // 'limit': this.priceToPrecision (symbol, price), // SPOT, required for limit orders, excluded for market orders
-            // 'timeInForce': 'GOOD_TIL_CANCELLED', // SPOT, IMMEDIATE_OR_CANCEL, FILL_OR_KILL, POST_ONLY_GOOD_TIL_CANCELLED
-            // 'useAwards': false, // SPOT, optional
-            // 'operand': 'LTE', // STOP, price above (GTE) or below (LTE) which the conditional order will trigger. either this or trailingStopPercent must be specified.
-            // 'triggerPrice': this.priceToPrecision (symbol, stopPrice), // STOP
-            // 'trailingStopPercent': this.priceToPrecision (symbol, stopPrice), // STOP, either this or triggerPrice must be set
-            // 'orderToCreate': {direction:side,type:uppercaseType}, // STOP, The spot order to be triggered
-            // 'orderToCancel': {id:'f03d5e98-b5ac-48fb-8647-dd4db828a297',type:uppercaseType}, // STOP, The spot order to be canceled
-            // 'clineConditionalOrderId': 'f03d5e98-b5ac-48fb-8647-dd4db828a297', // STOP
+        const newOrder = {
+            'marketSymbol': market['id'],
+            'direction': side.toUpperCase (),
         };
-        let method = 'privatePostOrders';
-        if (stop || stopPrice) {
-            method = 'privatePostConditionalOrders';
-            const operand = this.safeString (params, 'operand');
-            if (operand === undefined) {
-                throw new ArgumentsRequired (this.id + ' createOrder() requires an operand parameter');
-            }
-            const trailingStopPercent = this.safeNumber (params, 'trailingStopPercent');
-            const orderToCreate = this.safeValue (params, 'orderToCreate');
-            const orderToCancel = this.safeValue (params, 'orderToCancel');
-            if (stopPrice === undefined) {
-                request['trailingStopPercent'] = this.priceToPrecision (symbol, trailingStopPercent);
-            }
-            if (orderToCreate) {
-                const isCeilingLimit = (uppercaseType === 'CEILING_LIMIT');
-                const isCeilingMarket = (uppercaseType === 'CEILING_MARKET');
-                const isCeilingOrder = isCeilingLimit || isCeilingMarket;
-                let ceiling = undefined;
-                let limit = undefined;
-                let timeInForce = undefined;
-                if (isCeilingOrder) {
-                    let cost = undefined;
-                    if (isCeilingLimit) {
-                        limit = this.priceToPrecision (symbol, price);
-                        cost = this.safeNumber2 (params, 'ceiling', 'cost', amount);
-                    } else if (isCeilingMarket) {
-                        cost = this.safeNumber2 (params, 'ceiling', 'cost');
-                        if (cost === undefined) {
-                            if (price === undefined) {
-                                cost = amount;
-                            } else {
-                                cost = amount * price;
-                            }
-                        }
-                    }
-                    ceiling = this.costToPrecision (symbol, cost);
-                    timeInForce = 'IMMEDIATE_OR_CANCEL';
+        const upperCaseType = type.toUpperCase ();
+        const isMarketOrder = upperCaseType === 'MARKET' || upperCaseType === 'CEILING_MARKET';
+        const isLimitOrder = upperCaseType === 'LIMIT' || upperCaseType === 'CEILING_LIMIT';
+        const stopLossPrice = this.safeNumber (params, 'stopLossPrice');
+        const takeProfitPrice = this.safeNumber (params, 'takeProfitPrice');
+        if (stopLossPrice !== undefined && takeProfitPrice !== undefined) {
+            throw new ExchangeError (this.id + ' createOrder() does not support both stopLossPrice and takeProfitPrice params, please only supply one');
+        }
+        const isStopLossOrder = (stopLossPrice !== undefined);
+        const isTakeProfitOrder = (takeProfitPrice !== undefined);
+        const isStopOrder = (isStopLossOrder || isTakeProfitOrder);
+        const clientOrderId = this.safeString2 (params, 'clOrdId', 'clientOrderId');
+        const timeInForce = this.safeString (params, 'timeInForce');
+        const exchangeSpecificPostOnly = timeInForce === 'POST_ONLY_GOOD_TIL_CANCELLED';
+        const postOnly = this.isPostOnly (isMarketOrder, exchangeSpecificPostOnly, params);
+        const ioc = (timeInForce === 'IOC');
+        const gtc = (timeInForce === 'GTC');
+        const fok = (timeInForce === 'FOK');
+        if (isMarketOrder) {
+            newOrder['type'] = 'MARKET';
+        } else if (isLimitOrder) {
+            newOrder['type'] = 'LIMIT';
+            newOrder['limit'] = this.priceToPrecision (symbol, price);
+        }
+        if (ioc || gtc || fok || postOnly) {
+            if (ioc) {
+                newOrder['timeInForce'] = 'IMMEDIATE_OR_CANCEL';
+            } else if (gtc) {
+                if (isMarketOrder) {
+                    throw new InvalidOrder (this.id + ' createOrder() does not support market orders with timeInForce GTC, please specify IOC or FOK instead');
                 } else {
-                    if (uppercaseType === 'LIMIT') {
-                        limit = this.priceToPrecision (symbol, price);
-                        timeInForce = 'GOOD_TIL_CANCELLED';
-                    } else {
-                        timeInForce = 'IMMEDIATE_OR_CANCEL';
-                    }
+                    newOrder['timeInForce'] = 'GOOD_TIL_CANCELLED';
                 }
-                request['orderToCreate'] = {
-                    'marketSymbol': reverseId,
-                    'direction': side.toUpperCase (),
-                    'type': uppercaseType,
-                    'quantity': this.amountToPrecision (symbol, amount),
-                    'ceiling': ceiling,
-                    'limit': limit,
-                    'timeInForce': timeInForce,
-                    'clientOrderId': this.safeString (params, 'clientOrderId'),
-                    'useAwards': this.safeValue (params, 'useAwards'),
-                };
+            } else if (fok) {
+                newOrder['timeInForce'] = 'FILL_OR_KILL';
+            } else if (postOnly) {
+                newOrder['timeInForce'] = 'POST_ONLY_GOOD_TIL_CANCELLED';
             }
-            if (orderToCancel) {
-                request['orderToCancel'] = orderToCancel;
-            }
-            request['triggerPrice'] = this.priceToPrecision (symbol, stopPrice);
-            request['operand'] = operand;
+            params = this.omit (params, 'timeInForce');
         } else {
-            if (side !== undefined) {
-                request['direction'] = side.toUpperCase ();
-            }
-            request['type'] = uppercaseType;
-            const isCeilingLimit = (uppercaseType === 'CEILING_LIMIT');
-            const isCeilingMarket = (uppercaseType === 'CEILING_MARKET');
-            const isCeilingOrder = isCeilingLimit || isCeilingMarket;
-            if (isCeilingOrder) {
-                let cost = undefined;
-                if (isCeilingLimit) {
-                    request['limit'] = this.priceToPrecision (symbol, price);
-                    cost = this.safeNumber2 (params, 'ceiling', 'cost', amount);
-                } else if (isCeilingMarket) {
-                    cost = this.safeNumber2 (params, 'ceiling', 'cost');
-                    if (cost === undefined) {
-                        if (price === undefined) {
-                            cost = amount;
-                        } else {
-                            cost = amount * price;
-                        }
-                    }
-                }
-                request['ceiling'] = this.costToPrecision (symbol, cost);
-                // bittrex only accepts IMMEDIATE_OR_CANCEL or FILL_OR_KILL for ceiling orders
-                request['timeInForce'] = 'IMMEDIATE_OR_CANCEL';
-            } else {
-                request['quantity'] = this.amountToPrecision (symbol, amount);
-                if (uppercaseType === 'LIMIT') {
-                    request['limit'] = this.priceToPrecision (symbol, price);
-                    request['timeInForce'] = 'GOOD_TIL_CANCELLED';
-                } else {
-                    // bittrex does not allow GOOD_TIL_CANCELLED for market orders
-                    request['timeInForce'] = 'IMMEDIATE_OR_CANCEL';
-                }
+            // timeInForce is not optional
+            if (isMarketOrder) {
+                newOrder['timeInForce'] = 'IMMEDIATE_OR_CANCEL';
+            } else if (isLimitOrder) {
+                newOrder['timeInForce'] = 'GOOD_TIL_CANCELLED';
             }
         }
-        const query = this.omit (params, [ 'stop', 'stopPrice', 'ceiling', 'cost', 'operand', 'trailingStopPercent', 'orderToCreate', 'orderToCancel' ]);
-        const response = await this[method] (this.extend (request, query));
+        const isCeilingOrder = (type === 'CEILING_LIMIT') || (type === 'CEILING_MARKET');
+        const createOrderRequiresPrice = this.safeValue (this.options, 'createOrderRequiresPrice', {});
+        if (isCeilingOrder || !createOrderRequiresPrice) {
+            // specifying amount of quote to spend if buying or to recieve if selling
+            if (ioc || fok) {
+                const cost = this.safeNumber2 (params, 'cost', 'ceiling');
+                if (cost !== undefined) {
+                    newOrder['ceiling'] = this.priceToPrecision (symbol, cost);
+                } else {
+                    throw new ExchangeError (this.id + ' createOrder() requires a cost or ceiling parameter for ceiling orders');
+                }
+                if (isMarketOrder) {
+                    newOrder['type'] = 'CEILING_MARKET';
+                } else {
+                    newOrder['type'] = 'CEILING_LIMIT';
+                }
+            } else {
+                throw new ExchangeError (this.id + ' createOrder() requires timeInForce parameter of IOC or FOK for ceiling orders');
+            }
+        } else {
+            // regular orders
+            newOrder['quantity'] = this.amountToPrecision (symbol, amount);
+        }
+        let request = {
+            'marketSymbol': market['id'],
+        };
+        let method = undefined;
+        if (isStopOrder) {
+            method = 'privatePostConditionalOrders';
+            request['orderToCreate'] = newOrder;
+            if (isStopLossOrder) {
+                request['triggerPrice'] = this.priceToPrecision (symbol, stopLossPrice);
+                if (side === 'buy') {
+                    request['operand'] = 'GTE';
+                } else if (side === 'sell') {
+                    request['operand'] = 'LTE';
+                }
+            } else if (isTakeProfitOrder) {
+                request['triggerPrice'] = this.priceToPrecision (symbol, takeProfitPrice);
+                if (side === 'buy') {
+                    request['operand'] = 'LTE';
+                } else if (side === 'sell') {
+                    request['operand'] = 'GTE';
+                }
+            }
+        } else {
+            method = 'privatePostOrders';
+            request = this.extend (request, newOrder);
+        }
+        if (clientOrderId !== undefined) {
+            newOrder['clOrdId'] = clientOrderId;
+        }
+        params = this.omit (params, [ 'stopLossPrice', 'takeProfitPrice', 'postOnly', 'cost' ]);
+        const response = await this[method] (this.extend (request, params));
         //
-        // Spot
+        // stop order
         //
-        //     {
-        //         id: 'f03d5e98-b5ac-48fb-8647-dd4db828a297',
-        //         marketSymbol: 'BTC-USDT',
-        //         direction: 'SELL',
-        //         type: 'LIMIT',
-        //         quantity: '0.01',
-        //         limit: '6000',
-        //         timeInForce: 'GOOD_TIL_CANCELLED',
-        //         fillQuantity: '0.00000000',
-        //         commission: '0.00000000',
-        //         proceeds: '0.00000000',
-        //         status: 'OPEN',
-        //         createdAt: '2020-03-18T02:37:33.42Z',
-        //         updatedAt: '2020-03-18T02:37:33.42Z'
-        //       }
+        //      {
+        //          "id":"3f1dbb55-9680-4c4d-b5e7-48243df25285",
+        //          "marketSymbol":"DOGE-USDT",
+        //          "operand":"LTE",
+        //          "triggerPrice":"0.05",
+        //          "orderToCreate":{
+        //              "marketSymbol":"DOGE-USDT",
+        //              "direction":"SELL",
+        //              "type":"LIMIT",
+        //              "quantity":"150",
+        //              "limit":"0.04",
+        //              "timeInForce":"GOOD_TIL_CANCELLED"
+        //          },
+        //          "status":"OPEN",
+        //          "createdAt":"2022-08-12T17:22:12.84Z",
+        //          "updatedAt":"2022-08-12T17:22:12.84Z"
+        //      }
         //
-        // Stop
+        // regular order
         //
-        //     {
-        //         "id": "9791fe52-a3e5-4ac3-ae03-e327b2993571",
-        //         "marketSymbol": "BTC-USDT",
-        //         "operand": "LTE",
-        //         "triggerPrice": "0.1",
-        //         "orderToCreate": {
-        //             "marketSymbol": "BTC-USDT",
-        //             "direction": "BUY",
-        //             "type": "LIMIT",
-        //             "quantity": "0.0002",
-        //             "limit": "30000",
-        //             "timeInForce": "GOOD_TIL_CANCELLED"
-        //         },
-        //         "status": "OPEN",
-        //         "createdAt": "2022-04-19T21:02:14.17Z",
-        //         "updatedAt": "2022-04-19T21:02:14.17Z"
-        //     }
+        //      {
+        //          "id":"3692d7f1-6c45-47dd-8e3b-2c9c9fac8cb9",
+        //          "marketSymbol":"DOGE-USDT",
+        //          "direction":"SELL",
+        //          "type":"LIMIT",
+        //          "quantity":"150",
+        //          "limit":"0.09",
+        //          "timeInForce":"GOOD_TIL_CANCELLED",
+        //          "fillQuantity":"0.00000000",
+        //          "commission":"0.00000000",
+        //          "proceeds":"0.00000000",
+        //          "status":"OPEN",
+        //          "createdAt":"2022-08-12T17:26:53.69Z",
+        //          "updatedAt":"2022-08-12T17:26:53.69Z"
+        //      }
         //
         return this.parseOrder (response, market);
     }
