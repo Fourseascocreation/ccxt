@@ -2146,9 +2146,20 @@ module.exports = class wavesexchange extends Exchange {
         const amountString = this.safeString (data, 'amount');
         const order1 = this.safeValue (data, 'order1');
         const order2 = this.safeValue (data, 'order2');
+        const order1Datetime = this.safeString (order1, 'timestamp');
+        const order1Timestamp = this.parse8601 (order1Datetime);
+        const order2Datetime = this.safeString (order2, 'timestamp');
+        const order2Timestamp = this.parse8601 (order2Datetime);
         let order = undefined;
-        // order2 arrived after order1
+        let myTrade = false;
+        // choose user order or else most recent order
         if (this.safeString (order1, 'senderPublicKey') === this.apiKey) {
+            order = order1;
+            myTrade = true;
+        } else if (this.safeString (order2, 'senderPublicKey') === this.apiKey) {
+            order = order2;
+            myTrade = true;
+        } else if (order1Timestamp > order2Timestamp) {
             order = order1;
         } else {
             order = order2;
@@ -2161,11 +2172,18 @@ module.exports = class wavesexchange extends Exchange {
             symbol = market['symbol'];
         }
         const side = this.safeString (order, 'orderType');
-        const orderId = this.safeString (order, 'id');
-        const fee = {
-            'cost': this.safeString (order, 'matcherFee'),
-            'currency': this.safeCurrencyCode (this.safeString (order, 'matcherFeeAssetId', 'WAVES')),
+        let orderId = undefined;
+        let fee = {
+            'cost': this.safeString (data, 'fee'),
+            'currency': 'WAVES',
         };
+        if (myTrade) {
+            orderId = this.safeString (order, 'id');
+            fee = {
+                'cost': this.safeString (order, 'matcherFee'),
+                'currency': this.safeCurrencyCode (this.safeString (order, 'matcherFeeAssetId', 'WAVES')),
+            };
+        }
         return this.safeTrade ({
             'info': trade,
             'timestamp': timestamp,
