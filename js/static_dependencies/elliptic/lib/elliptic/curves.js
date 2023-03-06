@@ -164,11 +164,11 @@ defineCurve('ed25519', {
   ]
 });
 
-var pre;
+var preSecp256k1;
 try {
-  pre = require('./precomputed/secp256k1');
+  preSecp256k1 = require('./precomputed/secp256k1');
 } catch (e) {
-  pre = undefined;
+  preSecp256k1 = undefined;
 }
 
 defineCurve('secp256k1', {
@@ -199,6 +199,21 @@ defineCurve('secp256k1', {
   g: [
     '79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798',
     '483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8',
-    pre
+    preSecp256k1
+  ]
+});
+
+defineCurve('stark', {
+  type: 'short',
+  prime: null,
+  p: '08000000 00000011 00000000 00000000 00000000 00000000 00000000 00000001',
+  a: '00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000001',
+  b: '06f21413 efbe40de 150e596d 72f7a8c5 609ad26c 15c915c1 f4cdfcb9 9cee9e89',
+  n: '08000000 00000010 ffffffff ffffffff b781126d cae7b232 1e66a241 adc64d2f',
+  hash: 'SHA256',
+  gRed: false,
+  g: [
+    '1ef15c18599971b7beced415a40f0c7deacfd9b0d1819e03d723d8bc943cfca', 
+    '5668060aa49730b7be4801df46ec62de53ecd11abe43a32873000c36e8dc1f'
   ]
 });
