@@ -1003,13 +1003,98 @@ export default class bitget extends Exchange {
                 },
                 'sandboxMode': false,
                 'networks': {
-                    'TRX': 'TRC20',
-                    'ETH': 'ERC20',
+                    'TRX': 'TRX',
+                    'TRC20': 'TRC20',
+                    'ETH': 'ETH', // EVMOSETH is different
+                    'ERC20': 'ERC20',
                     'BSC': 'BEP20',
-                },
-                'networksById': {
-                    'TRC20': 'TRX',
-                    'BSC': 'BEP20',
+                    'ATOM': 'ATOM',
+                    'ACA': 'AcalaToken',
+                    'APT': 'Aptos',
+                    'ARBONE': 'ArbitrumOne',
+                    'ARBNOVA': 'ArbitrumNova',
+                    'AVAXC': 'C-Chain',
+                    'AVAXX': 'X-Chain',
+                    'AR': 'Arweave',
+                    'BCH': 'BCH',
+                    'BCHA': 'BCHA',
+                    'BEP20': 'BEP20',
+                    'BITCI': 'BITCI',
+                    'BTC': 'BTC',
+                    'CELO': 'CELO',
+                    'CSPR': 'CSPR',
+                    'ADA': 'Cardano',
+                    'CHZ': 'ChilizChain',
+                    'CRC20': 'CronosChain',
+                    'DOGE': 'DOGE',
+                    'DOT': 'DOT',
+                    'EOS': 'EOS',
+                    'ETHF': 'ETHFAIR',
+                    'ETHW': 'ETHW',
+                    'ETC': 'ETC',
+                    'EGLD': 'Elrond',
+                    'FIL': 'FIL',
+                    'FIO': 'FIO',
+                    'FTM': 'Fantom',
+                    'HRC20': 'HECO',
+                    'ONE': 'Harmony',
+                    'HNT': 'Helium',
+                    'ICP': 'ICP',
+                    'IOTX': 'IoTeX',
+                    'KARDIA': 'KAI',
+                    'KAVA': 'KAVA',
+                    'KDA': 'KDA',
+                    'KLAY': 'Klaytn',
+                    'KSM': 'Kusama',
+                    'LAT': 'LAT',
+                    'LTC': 'LTC',
+                    'MINA': 'MINA',
+                    'MOVR': 'MOVR',
+                    'METIS': 'MetisToken',
+                    'GLMR': 'Moonbeam',
+                    'NEAR': 'NEARProtocol',
+                    'NULS': 'NULS',
+                    'OASYS': 'OASYS',
+                    'OASIS': 'ROSE',
+                    'OMNI': 'OMNI',
+                    'ONT': 'Ontology',
+                    'OPTIMISM': 'Optimism',
+                    'OSMO': 'Osmosis',
+                    'POKT': 'PocketNetwork',
+                    'MATIC': 'Polygon',
+                    'QTUM': 'QTUM',
+                    'REEF': 'REEF',
+                    'SOL': 'SOL',
+                    'SYS': 'SYS', // SyscoinNEVM is different
+                    'SXP': 'Solar',
+                    'XYM': 'Symbol',
+                    'TON': 'TON',
+                    'TT': 'TT',
+                    'TLOS': 'Telos',
+                    'THETA': 'ThetaToken',
+                    'VITE': 'VITE',
+                    'WAVES': 'WAVES',
+                    'WAX': 'WAXP',
+                    'WEMIX': 'WEMIXMainnet',
+                    'XDC': 'XDCNetworkXDC',
+                    'XRP': 'XRP',
+                    'FET': 'FETCH',
+                    'NEM': 'NEM',
+                    'REI': 'REINetwork',
+                    'ZIL': 'ZIL',
+                    'ABBC': 'ABBCCoin',
+                    'RSK': 'RSK',
+                    'AZERO': 'AZERO',
+                    'TRC10': 'TRC10',
+                    'JUNO': 'JUNO',
+                    // undetected: USDSP, more info at https://www.bitget.com/v1/spot/public/coinChainList
+                    // todo: uncomment below after unification
+                    // 'TERRACLASSIC': 'Terra', // tbd, that network id is also assigned to TERRANEW network
+                    // 'CUBENETWORK': 'CUBE',
+                    // 'CADUCEUS': 'CMP',
+                    // 'CONFLUX': 'CFX', // CFXeSpace is different
+                    // 'CERE': 'CERE',
+                    // 'CANTO': 'CANTO',
                 },
                 'defaultTimeInForce': 'GTC', // 'GTC' = Good To Cancel (default), 'IOC' = Immediate Or Cancel
             },
@@ -1366,7 +1451,7 @@ export default class bitget extends Exchange {
             for (let j = 0; j < chains.length; j++) {
                 const chain = chains[j];
                 const networkId = this.safeString (chain, 'chain');
-                const network = this.safeCurrencyCode (networkId);
+                const networkCode = this.networkIdToCode (networkId);
                 const withdrawEnabled = this.safeString (chain, 'withdrawable');
                 const canWithdraw = withdrawEnabled === 'true';
                 withdraw = (canWithdraw) ? canWithdraw : withdraw;
@@ -1385,10 +1470,10 @@ export default class bitget extends Exchange {
                 if (networkMinDepositString !== undefined) {
                     minDepositString = (minDepositString === undefined) ? networkMinDepositString : Precise.stringMin (networkMinDepositString, minDepositString);
                 }
-                networks[network] = {
+                networks[networkCode] = {
                     'info': chain,
                     'id': networkId,
-                    'network': network,
+                    'network': networkCode,
                     'limits': {
                         'withdraw': {
                             'min': this.parseNumber (networkMinWithdrawString),
@@ -1578,14 +1663,14 @@ export default class bitget extends Exchange {
          * @returns {object} a [transaction structure]{@link https://docs.ccxt.com/#/?id=transaction-structure}
          */
         this.checkAddress (address);
-        const chain = this.safeString2 (params, 'chain', 'network');
-        params = this.omit (params, [ 'network' ]);
-        if (chain === undefined) {
-            throw new ArgumentsRequired (this.id + ' withdraw() requires a chain parameter or a network parameter');
+        let networkCode = undefined;
+        [ networkCode, params ] = this.handleNetworkCodeAndParams (params);
+        if (networkCode === undefined) {
+            throw new ArgumentsRequired (this.id + ' withdraw() requires a "network" parameter');
         }
         await this.loadMarkets ();
         const currency = this.currency (code);
-        const networkId = this.networkCodeToId (chain);
+        const networkId = this.networkCodeToId (networkCode);
         const request = {
             'coin': currency['code'],
             'address': address,
@@ -1603,30 +1688,11 @@ export default class bitget extends Exchange {
         //         "data": "888291686266343424"
         //     }
         //
-        const result = {
-            'id': this.safeString (response, 'data'),
-            'info': response,
-            'txid': undefined,
-            'timestamp': undefined,
-            'datetime': undefined,
-            'network': undefined,
-            'addressFrom': undefined,
-            'address': undefined,
-            'addressTo': undefined,
-            'amount': undefined,
-            'type': 'withdrawal',
-            'currency': undefined,
-            'status': undefined,
-            'updated': undefined,
-            'tagFrom': undefined,
-            'tag': undefined,
-            'tagTo': undefined,
-            'comment': undefined,
-            'fee': undefined,
-        };
+        const result = this.parseTransaction (response, currency);
         const withdrawOptions = this.safeValue (this.options, 'withdraw', {});
         const fillResponseFromRequest = this.safeValue (withdrawOptions, 'fillResponseFromRequest', true);
         if (fillResponseFromRequest) {
+            result['type'] = 'withdrawal';
             result['currency'] = code;
             result['timestamp'] = this.milliseconds ();
             result['datetime'] = this.iso8601 (this.milliseconds ());
@@ -1634,7 +1700,7 @@ export default class bitget extends Exchange {
             result['tag'] = tag;
             result['address'] = address;
             result['addressTo'] = address;
-            result['network'] = chain;
+            result['network'] = networkCode;
         }
         return result;
     }
@@ -1697,6 +1763,8 @@ export default class bitget extends Exchange {
 
     parseTransaction (transaction, currency = undefined) {
         //
+        // fetchWithdrawals, fetchDeposits, fetchWithdrawalDeposits ...
+        //
         //     {
         //         "id": "925607360021839872",
         //         "txId": "f73a4ac034da06b729f49676ca8801f406a093cf90c69b16e5a1cc9080df4ccb",
@@ -1711,6 +1779,12 @@ export default class bitget extends Exchange {
         //         "tag": null,
         //         "cTime": "1656407912259",
         //         "uTime": "1656407940148"
+        //     }
+        //
+        // withdraw
+        //
+        //     {
+        //         "data": "13......", // id to retrieve withdrawal details
         //     }
         //
         const currencyId = this.safeString (transaction, 'coin');
@@ -1728,7 +1802,7 @@ export default class bitget extends Exchange {
             amountString = Precise.stringSub (amountString, feeCostAbsString);
         }
         return {
-            'id': this.safeString (transaction, 'id'),
+            'id': this.safeString2 (transaction, 'id', 'data'),
             'info': transaction,
             'txid': this.safeString (transaction, 'txId'),
             'timestamp': timestamp,
@@ -1771,14 +1845,14 @@ export default class bitget extends Exchange {
          * @returns {object} an [address structure]{@link https://docs.ccxt.com/#/?id=address-structure}
          */
         await this.loadMarkets ();
-        const networkCode = this.safeString (params, 'network');
-        const networkId = this.networkCodeToId (networkCode, code);
+        let networkCode = undefined;
+        [ networkCode, params ] = this.handleNetworkCodeAndParams (params);
         const currency = this.currency (code);
         const request = {
             'coin': currency['code'],
         };
-        if (networkId !== undefined) {
-            request['chain'] = networkId;
+        if (networkCode !== undefined) {
+            request['chain'] = this.networkCodeToId (networkCode, code);
         }
         const response = await this.privateSpotGetWalletDepositAddress (this.extend (request, params));
         //
