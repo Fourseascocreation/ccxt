@@ -247,6 +247,47 @@ export default class bittrex extends Exchange {
                 },
             },
             'options': {
+                'networks': {
+                    // 'ETH': 'ETH', // ETC also has this id, so we can't reliable determine
+                    'ERC20': 'ETH_CONTRACT',
+                    'EOS': 'EOS',
+                    'ADA': 'ADA',
+                    'BITTREXPOOLED': 'BITTREXPOOLED',
+                    'BITTREXMEMO': 'BITTREXMEMO',
+                    'BITTREXPINGPONG': 'BITTREXPINGPONG',
+                    'XLM': 'STELLAR',
+                    // 'NXT': 'NXT',
+                    // 'ARK': 'ARK',
+                    // 'BITCOIN20': 'BITCOIN20',
+                    'KLAY': 'KLAYTN',
+                    'BTC': 'BITCOIN',
+                    // 'BITCOIN16': 'BITCOIN16',
+                    'BTM': 'BYTOM',
+                    // 'BITSHAREX': 'BITSHAREX',
+                    // 'Award': 'Award',
+                    // 'CORTEX': 'CORTEX', // todo
+                    // 'ETHEREUMV2': 'ETHEREUMV2',
+                    // 'FIAT': 'FIAT',
+                    // 'BYTEBALL': 'BYTEBALL',
+                    // 'BITCOINEX': 'BITCOINEX',
+                    'STEEM': 'STEEM',
+                    'HDAC': 'HDAC',
+                    'IOST': 'IOST',
+                    'LSK': 'LISK',
+                    'OMNI': 'OMNI',
+                    // 'WAVES': [ 'WAVES_ASSET', 'WAVES' ], todo: after unification
+                    // 'ANTSHARES': 'ANTSHARES',
+                    'ONT': 'ONTOLOGY',
+                    // 'CRYPTO_NOTE_PAYMENTID': 'CRYPTO_NOTE_PAYMENTID',
+                    'QRL': 'QRL',
+                    'SC': 'SIA',
+                    // 'STRATIS': 'STRATIS', // todo consensus
+                    // 'VERIBLOCK': 'VERIBLOCK', // todo consensus
+                    'VET': 'VECHAIN',
+                    // 'VELAS': 'VELAS', // todo consensus
+                    'NEM': 'NEM',
+                    'ZIL': 'ZIL',
+                },
                 'fetchTicker': {
                     'method': 'publicGetMarketsMarketSymbolTicker', // publicGetMarketsMarketSymbolSummary
                 },
@@ -259,6 +300,10 @@ export default class bittrex extends Exchange {
                 'fetchWithdrawals': {
                     'status': 'ok',
                 },
+                // todo: add optionality
+                // 'fetchCurrencies': {
+                //     'depositWithdrawStatuses': false,
+                // },
                 'parseOrderStatus': false,
                 'hasAlreadyAuthenticatedSuccessfully': false, // a workaround for APIKEY_INVALID
                 'subaccountId': undefined,
@@ -455,7 +500,14 @@ export default class bittrex extends Exchange {
          * @param {object} [params] extra parameters specific to the bittrex api endpoint
          * @returns {object} an associative dictionary of currencies
          */
-        const response = await this.publicGetCurrencies (params);
+        const allPromises = [];
+        allPromises.push (this.publicGetCurrencies (params));
+        if (this.checkRequiredCredentials (false)) {
+            allPromises.push (this.privateGetAccountPermissionsCurrencies (params)); // fetchDepositWithdrawStatuses
+        }
+        const responses = await Promise.all (allPromises);
+        //
+        // currencies
         //
         //     [
         //         {
@@ -473,32 +525,83 @@ export default class bittrex extends Exchange {
         //         }
         //     ]
         //
+        // statuses (only available if private keys are set)
+        //
+        //     [
+        //      {
+        //         symbol: "1ECO",
+        //         view: true,
+        //         deposit: {
+        //           blockchain: true,
+        //         },
+        //         withdraw: {
+        //           blockchain: true,
+        //         },
+        //       },
+        //       ..
+        //     ]
+        //
+        const currencies = this.safeValue (responses, 0, []);
+        const statuses = this.safeValue (responses, 1, []);
+        const statusesIndexed = this.indexBy (statuses, 'symbol');
         const result = {};
-        for (let i = 0; i < response.length; i++) {
-            const currency = response[i];
+        for (let i = 0; i < currencies.length; i++) {
+            const currency = currencies[i];
             const id = this.safeString (currency, 'symbol');
+            const statusData = this.safeValue (statusesIndexed, id);
             const code = this.safeCurrencyCode (id);
             const precision = this.parseNumber ('1e-8'); // default precision, seems exchange has same amount-precision across all pairs in UI too. todo: fix "magic constants"
             const fee = this.safeNumber (currency, 'txFee'); // todo: redesign
-            const isActive = this.safeString (currency, 'status');
+            const status = this.safeString (currency, 'status');
+            const isActive = (status === 'ONLINE');
+            // currencies have only one network on this exchange
+            const networkId = this.safeString (currency, 'coinType');
+            const networkCode = this.networkIdToCode (networkId);
+            const withdrawData = this.safeValue (statusData, 'withdraw', {});
+            const withdraw = this.safeValue (withdrawData, 'blockchain');
+            const depositData = this.safeValue (statusData, 'deposit', {});
+            const deposit = this.safeValue (depositData, 'blockchain');
+            // exchange has one supported chain for any currency
+            const networks = {};
+            networks[networkCode] = {
+                'info': currency,
+                'id': networkId,
+                'network': networkCode,
+                'active': isActive,
+                'deposit': withdraw,
+                'withdraw': deposit,
+                'fee': fee,
+                'precision': precision,
+                'limits': {
+                    'withdraw': {
+                        'min': undefined,
+                        'max': undefined,
+                    },
+                    'deposit': {
+                        'min': undefined,
+                        'max': undefined,
+                    },
+                },
+            };
             result[code] = {
                 'id': id,
                 'code': code,
                 'info': currency,
-                'type': this.safeString (currency, 'coinType'),
+                'type': undefined,
                 'name': this.safeString (currency, 'name'),
-                'active': (isActive === 'ONLINE'),
-                'deposit': undefined,
-                'withdraw': undefined,
+                'active': isActive,
+                'deposit': deposit,
+                'withdraw': withdraw,
                 'fee': fee,
                 'precision': precision,
+                'networks': networks,
                 'limits': {
-                    'amount': {
-                        'min': precision,
+                    'deposit': {
+                        'min': undefined,
                         'max': undefined,
                     },
                     'withdraw': {
-                        'min': fee,
+                        'min': undefined,
                         'max': undefined,
                     },
                 },
@@ -2053,7 +2156,7 @@ export default class bittrex extends Exchange {
             'currency': code,
             'address': address,
             'tag': this.safeString (response, 'cryptoAddressTag'),
-            'network': undefined,
+            'network': undefined, // networks are not provided in response. however, user can assume that it would be the same as the only supported networkCode, which is inside `currency->networks` object
             'info': response,
         };
     }
@@ -2149,6 +2252,7 @@ export default class bittrex extends Exchange {
             'currencySymbol': currency['id'],
             'quantity': amount,
             'cryptoAddress': address,
+            // network parameter is not supported by this exchange. however, it might be the only supported network which exists inside `currency->networks` object
         };
         if (tag !== undefined) {
             request['cryptoAddressTag'] = tag;
