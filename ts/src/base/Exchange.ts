@@ -139,7 +139,7 @@ import { OrderBook as WsOrderBook, IndexedOrderBook, CountedOrderBook } from './
 //
 
 // import types
-import { Market, Trade, Fee, Ticker, OHLCV, OHLCVC, Order, OrderBook, Balance, Balances, Dictionary, Transaction, DepositAddressResponse, Currency, MinMax, IndexType, Int, OrderType, OrderSide, Position } from './types.js';
+import { Market, Trade, Fee, Ticker, OHLCV, OHLCVC, Order, OrderBook, Balance, Balances, Dictionary, Transaction, DepositAddressResponse, Currency, MinMax, IndexType, Int, OrderType, OrderSide, Position, PreciseNumber } from './types.js';
 export {Market, Trade, Fee, Ticker} from './types.js'
 
 // ----------------------------------------------------------------------------
@@ -1066,7 +1066,7 @@ export default class Exchange {
         return
     }
 
-    parseNumber (value, d: number = undefined): number | string {
+    parseNumber (value, d: number = undefined): PreciseNumber {
         if (value === undefined) {
             return d
         } else {
@@ -2202,7 +2202,7 @@ export default class Exchange {
         return this.filterBySymbolSinceLimit (results, symbol, since, limit) as Order[];
     }
 
-    calculateFee (symbol: string, type: string, side: string, amount: number, price: number, takerOrMaker = 'taker', params = {}) {
+    calculateFee (symbol: string, type: string, side: string, amount: PreciseNumber, price: PreciseNumber, takerOrMaker = 'taker', params = {}) {
         if (type === 'market' && takerOrMaker === 'maker') {
             throw new ArgumentsRequired (this.id + ' calculateFee() - you have provided incompatible arguments - "market" type order can not be "maker". Change either the "type" or the "takerOrMaker" argument to calculate the fee.');
         }
@@ -3768,12 +3768,12 @@ export default class Exchange {
         return this.precisionMode === SIGNIFICANT_DIGITS;
     }
 
-    safeNumber (obj: object, key: IndexType, defaultNumber: number = undefined): number | string {
+    safeNumber (obj: object, key: IndexType, defaultNumber: number = undefined): PreciseNumber {
         const value = this.safeString (obj, key);
         return this.parseNumber (value, defaultNumber);
     }
 
-    safeNumberN (obj: object, arr: IndexType[], defaultNumber: number = undefined): number | string {
+    safeNumberN (obj: object, arr: IndexType[], defaultNumber: number = undefined): PreciseNumber {
         const value = this.safeStringN (obj, arr);
         return this.parseNumber (value, defaultNumber);
     }

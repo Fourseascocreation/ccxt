@@ -7,6 +7,7 @@ import { ArrayCache, ArrayCacheByTimestamp, ArrayCacheBySymbolById } from '../ba
 import { sha256 } from '../static_dependencies/noble-hashes/sha256.js';
 import { Int } from '../base/types.js';
 import Client from '../base/ws/Client.js';
+import Precise from '../base/Precise.js';
 
 //  ---------------------------------------------------------------------------
 
@@ -377,7 +378,7 @@ export default class bitmart extends bitmartRest {
             const market = this.safeMarket (marketId);
             const symbol = market['symbol'];
             const parsed = this.parseOHLCV (candle, market);
-            parsed[0] = this.parseToInt (parsed[0] / durationInMs) * durationInMs;
+            parsed[0] = this.parseToInt (Precise.stringDiv (parsed[0], durationInMs.toString ())) * durationInMs;
             this.ohlcvs[symbol] = this.safeValue (this.ohlcvs, symbol, {});
             let stored = this.safeValue (this.ohlcvs[symbol], timeframe);
             if (stored === undefined) {
