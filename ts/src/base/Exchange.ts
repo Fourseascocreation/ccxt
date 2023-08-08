@@ -139,7 +139,7 @@ import { OrderBook as WsOrderBook, IndexedOrderBook, CountedOrderBook } from './
 //
 
 // import types
-import { Market, Trade, Fee, Ticker, OHLCV, OHLCVC, Order, OrderBook, Balance, Balances, Dictionary, Transaction, DepositAddressResponse, Currency, MinMax, IndexType, Int, OrderType, OrderSide, Position } from './types.js';
+import { Market, Trade, Fee, Ticker, OHLCV, OHLCVC, Order, OrderBook, Balance, Balances, Dictionary, Transaction, DepositAddressResponse, Currency, MinMax, IndexType, Int, OrderType, OrderSide, Position, PreciseNumber } from './types.js';
 export {Market, Trade, Fee, Ticker} from './types.js'
 
 // ----------------------------------------------------------------------------
@@ -192,7 +192,7 @@ export default class Exchange {
     minFundingAddressLength = 1 // used in checkAddress
     substituteCommonCurrencyCodes = true  // reserved
     quoteJsonNumbers = true // treat numbers in json as quoted precise strings
-    number = Number // or String (a pointer to a function)
+    number: NumberConstructor | StringConstructor // or String (a pointer to a function)
     handleContentTypeApplicationZip = false
 
     // whether fees should be summed by currency code
@@ -647,7 +647,6 @@ export default class Exchange {
         this.minFundingAddressLength = 1 // used in checkAddress
         this.substituteCommonCurrencyCodes = true  // reserved
         this.quoteJsonNumbers = true // treat numbers in json as quoted precise strings
-        this.number = Number // or String (a pointer to a function)
         this.handleContentTypeApplicationZip = false
         // whether fees should be summed by currency code
         this.reduceFees = true
@@ -735,6 +734,8 @@ export default class Exchange {
         if (this.markets) {
             this.setMarkets (this.markets)
         }
+        const assignedType = this.safeStringLower (this.options, 'number', 'number');
+        this.number = (assignedType === 'string' ? String : Number);
         this.newUpdates = ((this.options as any).newUpdates !== undefined) ? (this.options as any).newUpdates : true;
 
         this.afterConstruct ();
@@ -1065,7 +1066,7 @@ export default class Exchange {
         return
     }
 
-    parseNumber (value, d: number = undefined): number {
+    parseNumber (value, d: number = undefined): PreciseNumber {
         if (value === undefined) {
             return d
         } else {
@@ -2200,7 +2201,7 @@ export default class Exchange {
         return this.filterBySymbolSinceLimit (results, symbol, since, limit) as Order[];
     }
 
-    calculateFee (symbol: string, type: string, side: string, amount: number, price: number, takerOrMaker = 'taker', params = {}) {
+    calculateFee (symbol: string, type: string, side: string, amount: PreciseNumber, price: PreciseNumber, takerOrMaker = 'taker', params = {}) {
         if (type === 'market' && takerOrMaker === 'maker') {
             throw new ArgumentsRequired (this.id + ' calculateFee() - you have provided incompatible arguments - "market" type order can not be "maker". Change either the "type" or the "takerOrMaker" argument to calculate the fee.');
         }
@@ -3766,12 +3767,12 @@ export default class Exchange {
         return this.precisionMode === SIGNIFICANT_DIGITS;
     }
 
-    safeNumber (obj: object, key: IndexType, defaultNumber: number = undefined): number {
+    safeNumber (obj: object, key: IndexType, defaultNumber: number = undefined): PreciseNumber {
         const value = this.safeString (obj, key);
         return this.parseNumber (value, defaultNumber);
     }
 
-    safeNumberN (obj: object, arr: IndexType[], defaultNumber: number = undefined): number {
+    safeNumberN (obj: object, arr: IndexType[], defaultNumber: number = undefined): PreciseNumber {
         const value = this.safeStringN (obj, arr);
         return this.parseNumber (value, defaultNumber);
     }

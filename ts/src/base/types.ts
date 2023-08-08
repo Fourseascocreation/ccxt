@@ -4,16 +4,18 @@ export interface Dictionary<T> {
 /** Request parameters */
 // type Params = Dictionary<string | number | boolean | string[]>;
 
+export type PreciseNumber = string | number;
+
 export interface MinMax {
-    min: number | undefined;
-    max: number | undefined;
+    min: PreciseNumber | undefined;
+    max: PreciseNumber | undefined;
 }
 
 export interface Fee {
     type?: 'taker' | 'maker' | string;
     currency: string;
-    rate?: number;
-    cost: number;
+    rate?: PreciseNumber;
+    cost: PreciseNumber;
 }
 
 export interface Market {
@@ -40,8 +42,8 @@ export interface Market {
     expiryDatetime?: string | undefined;
     strike?: number | undefined;
     optionType?: string | undefined;
-    taker?: number | undefined;
-    maker?: number | undefined;
+    taker?: PreciseNumber | undefined;
+    maker?: PreciseNumber | undefined;
     percentage?: boolean | undefined;
     tierBased?: boolean | undefined;
     feeSide?: string | undefined;
@@ -59,18 +61,18 @@ export interface Market {
 }
 
 export interface Trade {
-    amount: number;                  // amount of base currency
+    amount: PreciseNumber;                  // amount of base currency
     datetime: string;                // ISO8601 datetime with milliseconds;
     id: string;                      // string trade id
     info: any;                        // the original decoded JSON as is
     order?: string;                  // string order id or undefined/None/null
-    price: number;                   // float price in quote currency
+    price: PreciseNumber;                   // float price in quote currency
     timestamp: number;               // Unix timestamp in milliseconds
     type?: string;                   // order type, 'market', 'limit', ... or undefined/None/null
     side: 'buy' | 'sell' | string;            // direction of the trade, 'buy' or 'sell'
     symbol: string;                  // symbol in CCXT format
     takerOrMaker: 'taker' | 'maker' | string; // string, 'taker' or 'maker'
-    cost: number;                    // total cost (including fees), `price * amount`
+    cost: PreciseNumber;                    // total cost (including fees), `price * amount`
     fee: Fee;
 }
 
@@ -86,23 +88,23 @@ export interface Order {
     type: string;
     timeInForce?: string;
     side: 'buy' | 'sell' | string;
-    price: number;
-    average?: number;
-    amount: number;
-    filled: number;
-    remaining: number;
-    stopPrice?: number;
-    takeProfitPrice?: number;
-    stopLossPrice?: number;
-    cost: number;
+    price: PreciseNumber;
+    average?: PreciseNumber;
+    amount: PreciseNumber;
+    filled: PreciseNumber;
+    remaining: PreciseNumber;
+    stopPrice?: PreciseNumber;
+    takeProfitPrice?: PreciseNumber;
+    stopLossPrice?: PreciseNumber;
+    cost: PreciseNumber;
     trades: Trade[];
     fee: Fee;
     info: any;
 }
 
 export interface OrderBook {
-    asks: [number, number][];
-    bids: [number, number][];
+    asks: [PreciseNumber, PreciseNumber][];
+    bids: [PreciseNumber, PreciseNumber][];
     datetime: string;
     timestamp: number;
     nonce: number;
@@ -113,22 +115,22 @@ export interface Ticker {
     info: any;
     timestamp: number;
     datetime: string;
-    high: number;
-    low: number;
-    bid: number;
-    bidVolume?: number;
-    ask: number;
-    askVolume?: number;
-    vwap?: number;
-    open?: number;
-    close?: number;
-    last?: number;
-    previousClose?: number;
-    change?: number;
-    percentage?: number;
-    average?: number;
-    quoteVolume?: number;
-    baseVolume?: number;
+    high: PreciseNumber;
+    low: PreciseNumber;
+    bid: PreciseNumber;
+    bidVolume?: PreciseNumber;
+    ask: PreciseNumber;
+    askVolume?: PreciseNumber;
+    vwap?: PreciseNumber;
+    open?: PreciseNumber;
+    close?: PreciseNumber;
+    last?: PreciseNumber;
+    previousClose?: PreciseNumber;
+    change?: PreciseNumber;
+    percentage?: PreciseNumber;
+    average?: PreciseNumber;
+    quoteVolume?: PreciseNumber;
+    baseVolume?: PreciseNumber;
 }
 
 export interface Transaction {
@@ -139,10 +141,10 @@ export interface Transaction {
     datetime: string;
     address: string;
     type: 'deposit' | 'withdrawal' | string;
-    amount: number;
+    amount: PreciseNumber;
     currency: string;
     status: 'pending' | 'ok' | string;
-    updated: number;
+    updated: PreciseNumber;
     fee: Fee;
 }
 
@@ -158,9 +160,9 @@ export interface Currency {
 }
 
 export interface Balance {
-    free: number | string;
-    used: number | string;
-    total: number | string;
+    free: PreciseNumber;
+    used: PreciseNumber;
+    total: PreciseNumber;
 }
 
 export interface PartialBalances extends Dictionary<number> {
@@ -197,32 +199,32 @@ export interface Position {
     contracts?: number;
     contractsSize?: number;
     side: string;
-    notional?: number;
+    notional?: PreciseNumber;
     leverage?: number;
-    unrealizedPnl?: number;
-    realizedPnl?: number;
-    collateral?: number;
-    entryPrice?: number;
-    markPrice?: number;
-    liquidationPrice?: number;
+    unrealizedPnl?: PreciseNumber;
+    realizedPnl?: PreciseNumber;
+    collateral?: PreciseNumber;
+    entryPrice?: PreciseNumber;
+    markPrice?: PreciseNumber;
+    liquidationPrice?: PreciseNumber;
     hedged?: boolean;
-    maintenanceMargin?: number;
-    maintenanceMarginPercentage?: number;
-    initialMargin?: number;
-    initialMarginPercentage?: number;
+    maintenanceMargin?: PreciseNumber;
+    maintenanceMarginPercentage?: PreciseNumber;
+    initialMargin?: PreciseNumber;
+    initialMarginPercentage?: PreciseNumber;
     marginMode: string;
     marginRatio?: number;
     lastUpdateTimestamp?: number;
-    lastPrice?: number;
-    percentage?: number;
+    lastPrice?: PreciseNumber;
+    percentage?: PreciseNumber;
     info: any;
 }
 
 /** [ timestamp, open, high, low, close, volume ] */
-export type OHLCV = [number, number, number, number, number, number];
+export type OHLCV = [number, PreciseNumber, PreciseNumber, PreciseNumber, PreciseNumber, PreciseNumber];
 
 /** [ timestamp, open, high, low, close, volume, count ] */
-export type OHLCVC = [number, number, number, number, number, number, number];
+export type OHLCVC = [number, PreciseNumber, PreciseNumber, PreciseNumber, PreciseNumber, PreciseNumber, PreciseNumber];
 
 export type implicitReturnType = any;
 

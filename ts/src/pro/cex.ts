@@ -931,7 +931,7 @@ export default class cex extends cexRest {
         const symbol = this.pairToSymbol (pair);
         const messageHash = 'orderbook:' + symbol;
         const timestamp = this.safeInteger2 (data, 'timestamp_ms', 'timestamp');
-        const incrementalId = this.safeNumber (data, 'id');
+        const incrementalId = this.safeInteger (data, 'id');
         const storedOrderBook = this.orderBook ({});
         const snapshot = this.parseOrderBook (data, symbol, timestamp, 'bids', 'asks');
         snapshot['nonce'] = incrementalId;
@@ -969,7 +969,7 @@ export default class cex extends cexRest {
         //     }
         //
         const data = this.safeValue (message, 'data', {});
-        const incrementalId = this.safeNumber (data, 'id');
+        const incrementalId = this.safeInteger (data, 'id');
         const pair = this.safeString (data, 'pair', '');
         const symbol = this.pairToSymbol (pair);
         const storedOrderBook = this.safeValue (this.orderbooks, symbol);
