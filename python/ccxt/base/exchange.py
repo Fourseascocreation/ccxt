@@ -100,6 +100,7 @@ class Exchange(object):
     """Base exchange class"""
     id = None
     name = None
+    countries = None
     version = None
     certified = False  # if certified by the CCXT dev team
     pro = False  # if it is integrated with CCXT Pro for WebSocket support
@@ -122,12 +123,18 @@ class Exchange(object):
     markets = None
     symbols = None
     codes = None
-    timeframes = None
+    timeframes = {}
+
     fees = {
         'trading': {
-            'percentage': True,  # subclasses should rarely have to redefine this
+            'tierBased': None,
+            'percentage': None,
+            'taker': None,
+            'maker': None,
         },
         'funding': {
+            'tierBased': None,
+            'percentage': None,
             'withdraw': {},
             'deposit': {},
         },
@@ -142,7 +149,16 @@ class Exchange(object):
         },
     }
     ids = None
-    urls = None
+    urls = {
+        'logo': None,
+        'api': None,
+        'test': None,
+        'www': None,
+        'doc': None,
+        'api_management': None,
+        'fees': None,
+        'referral': None,
+    }
     api = None
     parseJsonResponse = True
 
@@ -187,14 +203,17 @@ class Exchange(object):
     twofa = None
     markets_by_id = None
     currencies_by_id = None
-    precision = None
-    exceptions = None
+
+    precision = {
+        'amount': None,
+        'price': None,
+        'cost': None,
+        'base': None,
+        'quote': None,
+    }
+    exceptions = {}
     limits = {
-        'leverage': {
-            'min': None,
-            'max': None,
-        },
-        'amount': {
+        'cost': {
             'min': None,
             'max': None,
         },
@@ -202,11 +221,16 @@ class Exchange(object):
             'min': None,
             'max': None,
         },
-        'cost': {
+        'amount': {
+            'min': None,
+            'max': None,
+        },
+        'leverage': {
             'min': None,
             'max': None,
         },
     }
+
     httpExceptions = {
         '422': ExchangeError,
         '418': DDoSProtection,
@@ -234,6 +258,7 @@ class Exchange(object):
         '407': AuthenticationError,
         '511': AuthenticationError,
     }
+
     balance = None
     orderbooks = None
     orders = None
@@ -244,7 +269,7 @@ class Exchange(object):
     tickers = None
     base_currencies = None
     quote_currencies = None
-    currencies = None
+    currencies = {}
     options = None  # Python does not allow to define properties in run-time with setattr
     accounts = None
     positions = None
@@ -254,6 +279,7 @@ class Exchange(object):
         'updated': None,
         'eta': None,
         'url': None,
+        'info': None,
     }
 
     requiredCredentials = {
@@ -291,6 +317,15 @@ class Exchange(object):
         'createStopOrder': None,
         'createStopLimitOrder': None,
         'createStopMarketOrder': None,
+        'createOrderWs': None,
+        'editOrderWs': None,
+        'fetchOpenOrdersWs': None,
+        'fetchOrderWs': None,
+        'cancelOrderWs': None,
+        'cancelOrdersWs': None,
+        'cancelAllOrdersWs': None,
+        'fetchTradesWs': None,
+        'fetchBalanceWs': None,
         'editOrder': 'emulated',
         'fetchAccounts': None,
         'fetchBalance': True,
@@ -309,14 +344,16 @@ class Exchange(object):
         'fetchDepositAddresses': None,
         'fetchDepositAddressesByNetwork': None,
         'fetchDeposits': None,
-        'fetchFundingFee': None,
-        'fetchFundingFees': None,
+        'fetchDepositsWithdrawals': None,
+        'fetchTransactionFee': None,
+        'fetchTransactionFees': None,
         'fetchFundingHistory': None,
         'fetchFundingRate': None,
         'fetchFundingRateHistory': None,
         'fetchFundingRates': None,
         'fetchIndexOHLCV': None,
         'fetchL2OrderBook': True,
+        'fetchLastPrices': None,
         'fetchLedger': None,
         'fetchLedgerEntry': None,
         'fetchLeverageTiers': None,
@@ -325,6 +362,8 @@ class Exchange(object):
         'fetchMarkOHLCV': None,
         'fetchMyTrades': None,
         'fetchOHLCV': None,
+        'fetchOpenInterest': None,
+        'fetchOpenInterestHistory': None,
         'fetchOpenOrder': None,
         'fetchOpenOrders': None,
         'fetchOrder': None,
@@ -335,6 +374,7 @@ class Exchange(object):
         'fetchPermissions': None,
         'fetchPosition': None,
         'fetchPositions': None,
+        'fetchPositionsBySymbol': None,
         'fetchPositionsRisk': None,
         'fetchPremiumIndexOHLCV': None,
         'fetchStatus': 'emulated',
@@ -347,6 +387,7 @@ class Exchange(object):
         'fetchTradingLimits': None,
         'fetchTransactions': None,
         'fetchTransfers': None,
+        'fetchWithdrawAddresses': None,
         'fetchWithdrawal': None,
         'fetchWithdrawals': None,
         'reduceMargin': None,
@@ -387,12 +428,7 @@ class Exchange(object):
     # no lower case l or upper case I, O
     base58_alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 
-    commonCurrencies = {
-        'XBT': 'BTC',
-        'BCC': 'BCH',
-        'BCHABC': 'BCH',
-        'BCHSV': 'BSV',
-    }
+    commonCurrencies = {}
     synchronous = True
 
     def __init__(self, config={}):
@@ -478,9 +514,6 @@ class Exchange(object):
 
     def __str__(self):
         return self.name
-
-    def describe(self):
-        return {}
 
     def throttle(self, cost=None):
         now = float(self.milliseconds())
@@ -1687,6 +1720,40 @@ class Exchange(object):
     # ########################################################################
 
     # METHODS BELOW THIS LINE ARE TRANSPILED FROM JAVASCRIPT TO PYTHON AND PHP
+
+    def describe(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'countries': self.countries,
+            'enableRateLimit': self.enableRateLimit,
+            'rateLimit': self.rateLimit,  # milliseconds = seconds * 1000
+            'timeout': self.timeout,  # milliseconds = seconds * 1000
+            'certified': self.certified,  # if certified by the CCXT dev team
+            'pro': self.pro,  # if it is integrated with CCXT Pro for WebSocket support
+            'alias': self.alias,  # whether self exchange is an alias to another exchange
+            'has': self.has,
+            'urls': self.urls,
+            'api': self.api,
+            'requiredCredentials': self.requiredCredentials,
+            'markets': self.markets,  # to be filled manually or by fetchMarkets
+            'currencies': self.currencies,  # to be filled manually or by fetchMarkets
+            'timeframes': self.timeframes,  # redefine if the exchange has fetchOHLCV
+            'fees': self.fees,
+            'status': self.status,
+            'exceptions': self.exceptions,
+            'precision': self.precision,
+            'precisionMode': self.precisionMode,
+            'paddingMode': self.paddingMode,
+            'limits': self.limits,
+            'httpExceptions': self.httpExceptions,
+            'commonCurrencies': { # gets extended/overwritten in subclasses
+                'XBT': 'BTC',
+                'BCC': 'BCH',
+                'BCHABC': 'BCH',
+                'BCHSV': 'BSV',
+            },
+        }
 
     def handle_deltas(self, orderbook, deltas):
         for i in range(0, len(deltas)):
