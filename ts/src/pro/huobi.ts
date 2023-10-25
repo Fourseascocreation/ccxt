@@ -915,6 +915,7 @@ export default class huobi extends huobiRest {
                     'trades': trades,
                     'status': 'closed',
                     'symbol': market['symbol'],
+                    'filled': parsedTrade['amount'],
                 };
                 parsedOrder = order;
             } else {
