@@ -878,7 +878,7 @@ export default class huobi extends Exchange {
                     'validation-format-error': BadRequest, // {"status":"error","err-code":"validation-format-error","err-msg":"Format Error: order-id.","data":null}
                     'validation-constraints-required': BadRequest, // {"status":"error","err-code":"validation-constraints-required","err-msg":"Field is missing: client-order-id.","data":null}
                     'base-date-limit-error': BadRequest, // {"status":"error","err-code":"base-date-limit-error","err-msg":"date less than system limit","data":null}
-                    'api-not-support-temp-addr': PermissionDenied, // {"status":"error","err-code":"api-not-support-temp-addr","err-msg":"API withdrawal does not support temporary addresses","data":null}
+                    'api-not-support-temp-addr': PermissionDenied, // {"status":"error","err-code":"api-not-support-temp-addr","err-msg":"API withdrawal does not support temporary addresses","data":null} // the user might need to add the withdrawal address exempt for API withdrawals with the exchange website first
                     'timeout': RequestTimeout, // {"ts":1571653730865,"status":"error","err-code":"timeout","err-msg":"Request Timeout"}
                     'gateway-internal-error': ExchangeNotAvailable, // {"status":"error","err-code":"gateway-internal-error","err-msg":"Failed to load data. Try again later.","data":null}
                     'account-frozen-balance-insufficient-error': InsufficientFunds, // {"status":"error","err-code":"account-frozen-balance-insufficient-error","err-msg":"trade account balance is not enough, left: `0.0027`","data":null}
@@ -943,42 +943,184 @@ export default class huobi extends Exchange {
                     'USDT': 'TRC20',
                 },
                 'networks': {
-                    // by displaynames
-                    'ALGO': 'ALGO',
-                    'ALGORAND': 'ALGO',
-                    'BEP20': 'BEP20',
+                    // The below list is made up by huobi's common network display names, instead of currency-specific chain ids
+                    'BTC': 'BTC',
+                    'ETH': 'ERC20ETH', // 'ERC20ETH' is used only for ETH coin, not 'ERC20' // todo: after unification
+                    'ERC20': 'ERC20',
+                    'TRX': 'TRX',
+                    // 'TRX' is used only for TRX coin // todo: after unification
+                    'TRC20': 'TRC20',
+                    // 'ALGO': [ 'ALGO', 'ALGOUSDC' ], // todo: after unification
                     'BSC': 'BEP20',
-                    'ERC20': 'ERC20',
-                    'ETH': 'ERC20',
-                    'AVALANCHE': 'AVAXCCHAIN',
-                    'AVAX': 'AVAXCCHAIN',
+                    // 'BEP20': [ 'BEP20', 'BEP20BNB' ], // 'BEP20BNB' is exceptionary for BNB coin, // todo: after unification
+                    'AVAXC': 'AVAXCCHAIN',
+                    'AVAXX': 'AVAX',
+                    'ARBONE': 'ARB',
                     'HRC20': 'HECO',
-                    'HECO': 'HECO',
-                    // 'HT': 'HECO', // HT is not acceptable networkcode for unification
-                    'TRC20': 'TRC20',
-                    'TRX': 'TRC20',
-                    'BTC': 'BTC',
-                    'BITCOIN': 'BTC',
-                    'ARBITRUM': 'ARB',
-                    'ARB': 'ARB',
-                    'SOLANA': 'SOL',
-                    'SOL': 'SOL',
-                    'SPL': 'SOL',
+                    'DOGE': 'DOGE',
+                    // 'SOL': [ 'SOLANA', 'SOL', 'SOLUSDC' ], // Some tokens has SOLANA as network-names and some has 'SOL' (SOLUSDC is exception) // todo: after unification
                     'PRC20': 'PRC20',
-                    'POLYGON': 'PRC20',
-                    'MATIC': 'PRC20',
-                },
-                'networksById': {
-                    'ALGO': 'ALGO',
-                    'BEP20': 'BEP20',
-                    'ERC20': 'ERC20',
-                    'AVAXCCHAIN': 'AVALANCHE',
-                    'HECO': 'HRC20',
-                    'TRC20': 'TRC20',
-                    'BTC': 'BTC',
-                    'ARB': 'ARBITRUM',
-                    'SOL': 'SOLANA',
-                    'PRC20': 'POLYGON',
+                    // 'AVALANCHE_C': [ 'AVAXCCHAIN', 'C-CHAIN', 'CCHAIN', 'CCHAINERC20' ], // huobi has such many aliases for avax // todo: after unification
+                    // 'MATIC': [ 'POLYGON', 'PRC20', 'MATIC' ],  // todo: after unification
+                    // 'CARDANO': [ 'CARDANO', 'ADA', 'ADATOKEN' ], // todo: after unification
+                    // 'CHILIZ': [ 'CHZCHAIN', 'CHZ20', 'CRC20' ], // 'CRC20' is used by houbi for Chiliz, not CRONOS network // todo: after unification
+                    'XLM': 'XLM',
+                    // todo: 'TERRA': 'LUNA', // LUNA is used by huobi only for LUNA coin. New Terra network is only for LUNA
+                    // 'TERRACLASSIC': [ 'USTC', 'LUNC', 'TERRA' ], // Huobi uses 'TERRA' network name for Terra classic // todo: after unification
+                    'ACA': 'ACA',
+                    'ZIL': 'ZIL',
+                    // 'CUBENETWORK': [ 'CUBE', 'CUBEDAI', 'CUBECRC20' ], // CUBE is only for mainnet CUBE and others have CUBECRC20 (CUBEDAI is exception) // todo: after unification
+                    'AE': 'AE',
+                    'AKT': 'AKT',
+                    'AR': 'AR',
+                    'ASTR': 'ASTR',
+                    'APT': 'APT',
+                    'BAND': 'BAND',
+                    'BSV': 'BSV',
+                    'BCH': 'BCC', // exception: 'HBCH' for huobi bch
+                    'BITCI': 'BITCI',
+                    'BRISE': 'BRISE',
+                    'DTA': 'DTA',
+                    'BTT': 'BTT',
+                    'BTS': 'BTS',
+                    'BTM': 'BTM',
+                    'CSPR': 'CSPR',
+                    'CELO': 'CELO',
+                    'COTI': 'COTI',
+                    'CRUST': 'CRUST',
+                    'CKB': 'CKB',
+                    'DASH': 'DASH',
+                    'DCR': 'DCR',
+                    'DOCK': 'DOCK',
+                    'EGLD': 'EGLD',
+                    'XEC': 'ECASH',
+                    'ELA': 'ELA',
+                    'EOS': 'EOS',
+                    'CRC20': 'CRO',
+                    'ETC': 'ETC',
+                    'ETHW': 'ETHW',
+                    'FIL': 'FIL',
+                    'ICP': 'ICP',
+                    'IOTA': 'IOTA',
+                    'KLAY': 'KLAY',
+                    'KSM': 'KSM',
+                    'LTC': 'LTC',
+                    'XMR': 'XMR',
+                    'XRP': 'XRP',
+                    'NEAR': 'NEAR',
+                    'ONT': 'ONTOLOGY',
+                    'OPTIMISM': 'OP',
+                    'DOT': 'DOT',
+                    'XZT': 'XZT',
+                    'TON': 'TON',
+                    'WAX': 'WAX1',
+                    'WAVES': 'WAVES',
+                    'ZEC': 'ZEC',
+                    'ZEN': 'ZEN',
+                    'XYM': 'XYM',
+                    'XVG': 'XVG',
+                    'XDC': 'XDC',
+                    'XCH': 'XCH',
+                    // 'NEBULAS': [ 'NAS', 'NRC20' ], // NAS is for main NAS mainnet coin, NRC20 for other NAS based tokens  // todo: after unification
+                    'VSYS': 'VSYS',
+                    'VET': 'VET',
+                    'XPRT': 'XPRT',
+                    'NEM': 'XEM',
+                    'TT': 'TT',
+                    'THETA': 'THETA',
+                    'SYS': 'SYS',
+                    'SGB': 'SGB',
+                    'SDN': 'SDN',
+                    'SCRT': 'SCRT',
+                    'STEEM': 'STEEM',
+                    'SC': 'SC',
+                    'RVN': 'RVN',
+                    'REI': 'REI',
+                    'QTUM': 'QTUM',
+                    'NULS': 'NULS',
+                    'NEWTON': 'NEWTON',
+                    'NANO': 'NANO',
+                    'MOVR': 'MOVR',
+                    // 'MOONBEAM': [ 'GLMR', 'MOONBEAM' ], // todo: after unification
+                    'POKT': 'POKT',
+                    'IOTEX': 'IOTX',
+                    // 'IOST': [ 'IOST', 'IRC20' ], // IOST is for mainnet IOST token and HUSD, other IOST-blockchain based tokens have IRC20 // todo: after unification
+                    'ONE': 'ONE',
+                    'MINA': 'MINA',
+                    'MASS': 'MASS',
+                    'LSK': 'LSK',
+                    'LINE': 'LINK', // this is not chainlink, but LINE BLOCKCHAIN for LINK
+                    'OASYS': 'OAS',
+                    'LAT': 'LAT',
+                    'KMD': 'KMD',
+                    'KMA': 'KMA',
+                    'KAVA': 'KAVA',
+                    'ICX': 'ICX',
+                    'HIVE': 'HIVE',
+                    'HBAR': 'HBAR',
+                    'GAS': 'GAS',
+                    'FTM': 'FTM',
+                    'FSN': 'FSN',
+                    'FLOW': 'FLOW',
+                    'EVMOS': 'EVMOS',
+                    'ETHF': 'ETHFAIR',
+                    'ERGO': 'ERG',
+                    'CTXC': 'CTXC',
+                    'NODL': 'NODL',
+                    'IRIS': 'IRIS',
+                    'DGB': 'DGB',
+                    'AZERO': 'AZERO',
+                    'POLYX': 'POLYX',
+                    'RSK': 'RBTC', // ROOTSTOCK
+                    // 'COSMOS': 'ATOM1',
+                    // 'ATOM': 'ATOM1', todo calrify
+                    'FIO': 'FIO',
+                    'QI': 'QI',
+                    'DFI': 'DFI',
+                    'NEON3': 'NEON3',
+                    // below will be uncommented after consensus
+                    // 'BITCOINDIAMOND': 'BCD',
+                    // 'BITCOINHD': 'BHD',
+                    // 'BITCOINGOLD': 'BTG',
+                    // 'BITCOINX': 'BCX',
+                    // 'SUPERBITCOIN': 'SBTC',
+                    // 'UNIQUENETWORK': 'UNQ',
+                    // 'SOLOGENIC': 'SOLO',
+                    // 'ACHAIN': 'ACT',
+                    // 'ARDOR': 'ARDR',
+                    // 'AELF': 'ELF',
+                    // 'EMINER': 'EM',
+                    // 'AURORY': 'AURY',
+                    // 'TOPNETWORK': 'TOP',
+                    // 'WGREENPAY': 'WGP',
+                    // 'DOUBLEACHAIN': 'AAC',
+                    // 'AGORIC': 'BLD',
+                    // 'CONSCIOUSVALUENETWORK': 'CVNT',
+                    // 'CELLODOLAR': 'CUSD',
+                    // 'CYBERMILES': 'CMT',
+                    // 'DECIMATED': 'DIO',
+                    // 'DEEPBRAIN': 'DBC1',
+                    // 'PNETWORK': 'XPNT',
+                    // 'WALTONCHAIN': 'WTC',
+                    // 'WAYKICHAIN': 'WICC',
+                    // 'WANCHAIN': 'WAN',
+                    // 'ULTRAIN': 'UGAS',
+                    // 'UNILENDFINANCE': 'UFT',
+                    // 'SMARTMESH': 'SMT',
+                    // 'ROUTE': 'ROUTE',
+                    // 'NERVE': 'NVT',
+                    // 'STEP': 'STEP',
+                    // 'BITSHARESNEW': 'NBS',
+                    // 'MOVIEBLOC': 'MBL',
+                    // 'ELECTRONEUM': 'ETN',
+                    // 'STAFI': 'FIS',
+                    // 'GROESTLCOIN': 'GRS',
+                    // 'HYPERCASH': 'HC',
+                    // 'FIRO': 'XZC',
+                    // dead projects:  "BCV" (BitCapitalVendor ), "PAI" (Project Pai), BIFI (bitcoin file)
+                    // excluded: GBP, EUR BRL
+                    // unknown networks: KIP7, BSCFACE1, OEP4, GASN3, EOSS, LUK
+                    // several other coins with network name prefixed HRC20 i.e. "HRC20AAVE", "HRC20AXS" ... but all other chains on heco are just with HECO name. another single exception is that ht coin has "HECOHT" as network name
                 },
                 // https://github.com/ccxt/ccxt/issues/5376
                 'fetchOrdersByStatesMethod': 'spot_private_get_v1_order_orders', // 'spot_private_get_v1_order_history' // https://github.com/ccxt/ccxt/pull/5392
@@ -2900,10 +3042,10 @@ export default class huobi extends Exchange {
             for (let j = 0; j < chains.length; j++) {
                 const chainEntry = chains[j];
                 const uniqueChainId = this.safeString (chainEntry, 'chain'); // i.e. usdterc20, trc20usdt ...
-                const title = this.safeString (chainEntry, 'displayName');
-                this.options['networkChainIdsByNames'][code][title] = uniqueChainId;
-                this.options['networkNamesByChainIds'][uniqueChainId] = title;
-                const networkCode = this.networkIdToCode (title, code);
+                const networkTitle = this.safeString (chainEntry, 'displayName');
+                this.options['networkChainIdsByNames'][code][networkTitle] = uniqueChainId;
+                this.options['networkNamesByChainIds'][uniqueChainId] = networkTitle;
+                const networkCode = this.networkIdToCode (networkTitle, code);
                 minWithdraw = this.safeNumber (chainEntry, 'minWithdrawAmt');
                 maxWithdraw = this.safeNumber (chainEntry, 'maxWithdrawAmt');
                 const withdrawStatus = this.safeString (chainEntry, 'withdrawStatus');
