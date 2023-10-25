@@ -41,6 +41,7 @@ const exchangeSpecificFlags = {
     '--private': false,
     '--privateOnly': false,
     '--info': false,
+    '--pr_build': false,
 }
 
 const content = fs.readFileSync ('skip-tests.json', 'utf8');

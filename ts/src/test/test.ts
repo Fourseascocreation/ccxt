@@ -27,6 +27,7 @@ const NotSupported = ccxt.NotSupported;
 // non-transpiled part, but shared names among langs
 class baseMainTestClass {
     info = false;
+    isPrBuild = false;
     verbose = false;
     debug = false;
     privateTest = false;
@@ -125,6 +126,7 @@ async function close (exchange) {
 export default class testMainClass extends baseMainTestClass {
     parseCliArgs () {
         this.info = getCliArgValue ('--info');
+        this.isPrBuild = getCliArgValue ('--pr_build');
         this.verbose = getCliArgValue ('--verbose');
         this.debug = getCliArgValue ('--debug');
         this.privateTest = getCliArgValue ('--private');
