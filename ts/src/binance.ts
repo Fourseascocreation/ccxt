@@ -1194,14 +1194,138 @@ export default class binance extends Exchange {
                     'CMFUTURE': 'inverse',
                     'OPTION': 'option',
                 },
+                'useUnifiedNetworkCodes': false, // temporarily disable this to avoid immediate breaking changes. Soon after announcement we would enable this by default
                 'networks': {
+                    'BTC': 'BTC',
                     'ERC20': 'ETH',
                     'TRC20': 'TRX',
                     'BEP2': 'BNB',
                     'BEP20': 'BSC',
                     'OMNI': 'OMNI',
                     'EOS': 'EOS',
-                    'SPL': 'SOL',
+                    'SOL': 'SOL',
+                    // 'FIAT': 'FIAT_MONEY', // not unified atm
+                    // 'LEVERAGE_TOKEN': 'ETF', // not unified atm
+                    // 'STAKING': 'STAKING', // not unified atm
+                    'NEAR': 'NEAR',
+                    'HNT': 'HNT',
+                    'NANO': 'NANO',
+                    'AION': 'AION',
+                    'DGB': 'DGB',
+                    'ONT': 'ONT',
+                    'BCH': 'BCH',
+                    'AR': 'AR',
+                    'IRIS': 'IRIS',
+                    'AVAXC': 'AVAXC',
+                    'AVAXX': 'AVAX',
+                    'ARBONE': 'ARBITRUM',
+                    'NEO': 'NEO',
+                    'VITE': 'VITE',
+                    'FLR': 'FLR',
+                    'BCX': 'BCX',
+                    'ACA': 'ACA',
+                    'ARDR': 'ARDR',
+                    'NEBL': 'NEBL',
+                    'CHZ': 'CHZ',
+                    'MINA': 'MINA',
+                    'VET': 'VET',
+                    'REI': 'REI',
+                    'ADA': 'ADA',
+                    'WAVES': 'WAVES',
+                    'XRP': 'XRP',
+                    'MATIC': 'MATIC',
+                    'SCRT': 'SCRT',
+                    'KAVA': 'KAVA',
+                    'THETA': 'THETA',
+                    'SBTC': 'SBTC',
+                    'CKB': 'CKB',
+                    'XTZ': 'XTZ',
+                    'RSK': 'RSK',
+                    'XVG': 'XVG',
+                    'FLOW': 'FLOW',
+                    'STEEM': 'STEEM',
+                    'DOT': 'DOT',
+                    'FTM': 'FTM',
+                    'ATOM': 'ATOM',
+                    'OPTIMISM': 'OPTIMISM',
+                    'GLMR': 'GLMR',
+                    'ETC': 'ETC',
+                    'TOMO': 'TOMO',
+                    'CELO': 'CELO',
+                    'KLAY': 'KLAY',
+                    'EGLD': 'EGLD',
+                    'NULS': 'NULS',
+                    'ETHW': 'ETHW',
+                    'APT': 'APT',
+                    'IOTX': 'IOTX',
+                    'DOCK': 'DOCK',
+                    'STX': 'STX',
+                    'IOST': 'IOST',
+                    'BAND': 'BAND',
+                    'ASTR': 'ASTR',
+                    'IOTA': 'IOTA',
+                    'REEF': 'REEF',
+                    'ARK': 'ARK',
+                    'ONE': 'ONE',
+                    'ALGO': 'ALGO',
+                    'SC': 'SC',
+                    'PIVX': 'PIVX',
+                    'FIRO': 'FIRO',
+                    'ICP': 'ICP',
+                    'ZEC': 'ZEC',
+                    'ICX': 'ICX',
+                    'ZEN': 'ZEN',
+                    'DOGE': 'DOGE',
+                    'HBAR': 'HBAR',
+                    'RVN': 'RVN',
+                    'OSMO': 'OSMO',
+                    'SYS': 'SYS',
+                    'XEC': 'XEC',
+                    'ZIL': 'ZIL',
+                    'KMD': 'KMD',
+                    'HIVE': 'HIVE',
+                    'WAX': 'WAX',
+                    'DASH': 'DASH',
+                    'LSK': 'LSK',
+                    'BEAM': 'BEAM',
+                    'DCR': 'DCR',
+                    'XLM': 'XLM',
+                    'LTC': 'LTC',
+                    'INJ': 'INJ',
+                    'QTUM': 'QTUM',
+                    'KSM': 'KSM',
+                    'FIL': 'FIL',
+                    'FIO': 'FIO',
+                    'MOVR': 'MOVR',
+                    'XMR': 'XMR',
+                    // todo: below will be uncommented after consensus
+                    // 'AELF': 'ELF',
+                    // 'OASIS': 'ROSE',
+                    // 'NEO3': 'NEO3',
+                    // 'PARALLELFINANCE': 'PARA',
+                    // 'EFINITY': 'EFI',
+                    // 'TERRA': 'LUNA',
+                    // 'TERRACLASSIC': 'LUNC',
+                    // 'WALTONCHAIN': 'WTC',
+                    // 'RONIN': 'RON',
+                    // // '': 'CTK', // tbd
+                    // 'MANTA': 'MA',
+                    // 'BIFROST': 'BIFROSTKUSAMA',
+                    // 'BITSHARES_OLD': 'BTS',
+                    // 'BITSHARES_NEW': 'NBS',
+                    // 'FETCH_AI': 'FET',
+                    // 'THORCHAIN': 'RUNE',
+                    // 'CORTEX': 'CTXC',
+                    // 'NEM': 'XEM',
+                    // 'MOBILECOIN': 'MOB',
+                    // 'STRATIS': 'STRAX',
+                    // 'WANCHAIn': 'WAN',
+                    // 'POLYMESH': 'POLYX',
+                    // 'BITCOINGOLD': 'BTG',
+                    // 'BTCNATIVESEGWIT': 'SEGWITBTC',
+                    // 'KADENA_1': 'KDA',
+                    // 'KADENA_2': 'KDA2',
+                    // 'AIRDAO': 'AMB', // a.k.a. AMBROSUS
                 },
                 // keeping this object for backward-compatibility
                 'reverseNetworks': {
@@ -1298,7 +1422,7 @@ export default class binance extends Exchange {
                     'explorer.zcha.in': 'ZEC',
                     'explorer.zensystem.io': 'ZEN',
                 },
-                'networksById': {
+                'networksByImpliedNames': {
                     'tronscan.org': 'TRC20',
                     'etherscan.io': 'ERC20',
                     'bscscan.com': 'BSC',
@@ -2547,6 +2671,7 @@ export default class binance extends Exchange {
             return undefined;
         }
         const response = await this.sapiGetCapitalConfigGetall (params);
+        const isUnifiedNetworks = this.safeValue (this.options, 'useUnifiedNetworkCodes', false);
         const result = {};
         for (let i = 0; i < response.length; i++) {
             //
@@ -2652,6 +2777,74 @@ export default class binance extends Exchange {
             let isWithdrawEnabled = true;
             let isDepositEnabled = true;
             const networkList = this.safeValue (entry, 'networkList', []);
+            // because of backward-compatibility, we place this under if clause
+            if (isUnifiedNetworks) {
+                // we shouldnt assign any value to the below two variables on initialization
+                isWithdrawEnabled = undefined;
+                isDepositEnabled = undefined;
+                let maxDecimalPlaces = undefined;
+                const networks = {};
+                for (let j = 0; j < networkList.length; j++) {
+                    const networkItem = networkList[j];
+                    const networkId = this.safeString (networkItem, 'network');
+                    const networkCode = this.networkIdToCode (networkId);
+                    // todo: default networks
+                    // const isDefault = this.safeValue (networkItem, 'isDefault');
+                    // if (isDefault) {
+                    //     this.options['defaultNetworkCodesForCurrencies'][code] = networkCode;
+                    // }
+                    let decimalPlaces = undefined;
+                    let precisionTick = this.safeString (networkItem, 'withdrawIntegerMultiple');
+                    // FIAT, ETF (LEVERAGED UP/DOWN TOKENS), some STAKING or some abandonded coin versions might provide "0" (zero) string value for ticksize: https://github.com/ccxt/ccxt/pull/14902#issuecomment-1271636731 so, we skip those occasions
+                    // fix '0' string value and RDNT > ARBITRUM
+                    if (Precise.stringEq (precisionTick, '0')) {
+                        if (networkId === 'ARBITRUM') {
+                            precisionTick = '0.00000001'; // confirmed from UI, it doesn't let beyond 8 decimal places
+                        } else {
+                            precisionTick = undefined;
+                        }
+                    }
+                    if (precisionTick !== undefined) {
+                        decimalPlaces = this.numberToString (this.precisionFromString (precisionTick));
+                        maxDecimalPlaces = (maxDecimalPlaces === undefined) ? decimalPlaces : Precise.stringMax (maxDecimalPlaces, decimalPlaces);
+                    }
+                    networks[networkCode] = {
+                        'info': networkItem,
+                        'id': networkId,
+                        'network': networkCode,
+                        'deposit': this.safeValue (networkItem, 'depositEnable'),
+                        'withdraw': this.safeValue (networkItem, 'withdrawEnable'),
+                        'fee': this.safeNumber (networkItem, 'withdrawFee'),
+                        'precision': this.parseNumber (decimalPlaces),
+                        'limits': {
+                            'deposit': {
+                                'min': undefined,
+                                'max': undefined,
+                            },
+                            'withdraw': {
+                                'min': this.safeNumber (networkItem, 'withdrawMin'),
+                                'max': this.safeNumber (networkItem, 'withdrawMax'),
+                            },
+                        },
+                    };
+                }
+                const trading = this.safeValue (entry, 'trading');
+                result[code] = {
+                    'id': id,
+                    'name': name,
+                    'code': code,
+                    'precision': this.parseNumber (maxDecimalPlaces),
+                    'info': entry,
+                    'active': (isWithdrawEnabled && isDepositEnabled && trading),
+                    'deposit': isDepositEnabled,
+                    'withdraw': isWithdrawEnabled,
+                    'networks': networks,
+                    'fee': undefined,
+                    'fees': undefined,
+                    'limits': this.limits,
+                };
+                continue; // just skip rest code to avoid touching method body in this PR
+            }
             const fees = {};
             let fee = undefined;
             for (let j = 0; j < networkList.length; j++) {
@@ -6683,14 +6876,16 @@ export default class binance extends Exchange {
         if (internalInteger !== undefined) {
             internal = internalInteger ? true : false;
         }
-        const network = this.safeString (transaction, 'network');
+        const useUnified = this.safeValue (this.options, 'useUnifiedNetworkCodes', false);
+        const networkId = this.safeString (transaction, 'network');
+        const networkCode = useUnified ? this.networkIdToCode (networkId) : networkId;
         return {
             'info': transaction,
             'id': id,
             'txid': txid,
             'timestamp': timestamp,
             'datetime': this.iso8601 (timestamp),
-            'network': network,
+            'network': networkCode,
             'address': address,
             'addressTo': address,
             'addressFrom': undefined,
@@ -6989,18 +7184,15 @@ export default class binance extends Exchange {
         const currency = this.currency (code);
         const request = {
             'coin': currency['id'],
-            // 'network': 'ETH', // 'BSC', 'XMR', you can get network and isDefault in networkList in the response of sapiGetCapitalConfigDetail
+            // 'network': 'ETH',
         };
-        const networks = this.safeValue (this.options, 'networks', {});
-        let network = this.safeStringUpper (params, 'network'); // this line allows the user to specify either ERC20 or ETH
-        network = this.safeString (networks, network, network); // handle ERC20>ETH alias
-        if (network !== undefined) {
-            request['network'] = network;
-            params = this.omit (params, 'network');
+        // if you don't pass network name it will try to get for the "default" network.
+        // you can see which one is default for any currency by looking to "isDefault" param in currency->networks->info
+        const [ networkCode, query ] = this.handleNetworkCodeAndParams (params);
+        if (networkCode !== undefined) {
+            request['network'] = this.networkCodeToId (networkCode);
         }
-        // has support for the 'network' parameter
-        // https://binance-docs.github.io/apidocs/spot/en/#deposit-address-supporting-network-user_data
-        const response = await this.sapiGetCapitalDepositAddress (this.extend (request, params));
+        const response = await this.sapiGetCapitalDepositAddress (this.extend (request, query));
         //
         //     {
         //         "currency": "XRP",
@@ -7014,8 +7206,15 @@ export default class binance extends Exchange {
         //         }
         //     }
         //
-        const address = this.safeString (response, 'address');
-        const url = this.safeString (response, 'url');
+        return this.parseDepositAddress (response, currency);
+    }
+
+    parseDepositAddress (depositAddress, currency = undefined) {
+        const currencyId = this.safeString (depositAddress, 'coin');
+        const code = this.safeCurrencyCode (currencyId, currency);
+        const address = this.safeString (depositAddress, 'address');
+        const url = this.safeString (depositAddress, 'url');
+        let networkCode = undefined;
         let impliedNetwork = undefined;
         if (url !== undefined) {
             const reverseNetworks = this.safeValue (this.options, 'reverseNetworks', {});
@@ -7036,8 +7235,10 @@ export default class binance extends Exchange {
                 const conversion = this.safeValue (impliedNetworks, code, {});
                 impliedNetwork = this.safeString (conversion, impliedNetwork, impliedNetwork);
             }
+            const networkCodesByImpliedNetworks = this.safeValue (this.options, 'networksByImpliedNames', {});
+            networkCode = this.safeString (networkCodesByImpliedNetworks, impliedNetwork, impliedNetwork);
         }
-        let tag = this.safeString (response, 'tag', '');
+        let tag = this.safeString (depositAddress, 'tag', '');
         if (tag.length === 0) {
             tag = undefined;
         }
@@ -7046,8 +7247,8 @@ export default class binance extends Exchange {
             'currency': code,
             'address': address,
             'tag': tag,
-            'network': impliedNetwork,
-            'info': response,
+            'network': networkCode,
+            'info': depositAddress,
         };
     }
 
@@ -7321,12 +7522,11 @@ export default class binance extends Exchange {
         if (tag !== undefined) {
             request['addressTag'] = tag;
         }
-        const networks = this.safeValue (this.options, 'networks', {});
-        let network = this.safeStringUpper (params, 'network'); // this line allows the user to specify either ERC20 or ETH
-        network = this.safeString (networks, network, network); // handle ERC20>ETH alias
-        if (network !== undefined) {
-            request['network'] = network;
-            params = this.omit (params, 'network');
+        let networkCode = undefined;
+        [ networkCode, params ] = this.handleNetworkCodeAndParams (params);
+        const networkId = this.networkCodeToId (networkCode);
+        if (networkId !== undefined) {
+            request['network'] = networkId;
         }
         const response = await this.sapiPostCapitalWithdrawApply (this.extend (request, params));
         //     { id: '9a67628b16ba4988ae20d329333f16bc' }
