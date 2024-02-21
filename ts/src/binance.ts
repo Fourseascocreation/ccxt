@@ -48,6 +48,7 @@ export default class binance extends Exchange {
                 'createMarketSellOrderWithCost': true,
                 'createOrder': true,
                 'createOrders': true,
+                'createOrderWithTakeProfitAndStopLoss': true,
                 'createPostOnlyOrder': true,
                 'createReduceOnlyOrder': true,
                 'createStopLimitOrder': true,
@@ -110,6 +111,7 @@ export default class binance extends Exchange {
                 'fetchOrderTrades': true,
                 'fetchPosition': true,
                 'fetchPositions': true,
+                'fetchPositionsForSymbol': 'emulated',
                 'fetchPositionsRisk': true,
                 'fetchPremiumIndexOHLCV': false,
                 'fetchSettlementHistory': true,
@@ -121,7 +123,7 @@ export default class binance extends Exchange {
                 'fetchTradingFee': true,
                 'fetchTradingFees': true,
                 'fetchTradingLimits': undefined,
-                'fetchTransactionFee': undefined,
+                'fetchTransactionFee': 'emulated',
                 'fetchTransactionFees': true,
                 'fetchTransactions': false,
                 'fetchTransfers': true,
@@ -9732,6 +9734,10 @@ export default class binance extends Exchange {
         } else {
             throw new NotSupported (this.id + '.options["fetchPositions"]/params["method"] = "' + defaultMethod + '" is invalid, please choose between "account", "positionRisk" and "option"');
         }
+    }
+
+    async fetchPositionsForSymbol (symbol: string, params = {}) {
+        return await this.fetchPositions ([ symbol ], params);
     }
 
     async fetchAccountPositions (symbols: Strings = undefined, params = {}) {
