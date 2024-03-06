@@ -470,7 +470,7 @@ export default class mercado extends Exchange {
                 }
                 const amountString = this.numberToString (amount);
                 const priceString = this.numberToString (price);
-                const cost = this.parseNumber (Precise.stringMul (amountString, priceString));
+                const cost = this.parseToNumeric (Precise.stringMul (amountString, priceString));
                 request['cost'] = this.priceToPrecision (market['symbol'], cost);
             } else {
                 request['quantity'] = this.amountToPrecision (market['symbol'], amount);
