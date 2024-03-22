@@ -1005,18 +1005,83 @@ export default class bybit extends Exchange {
                     'FUND': 'fund',
                 },
                 'networks': {
+                    'BTC': 'BTC',
+                    'ETH': 'ETH',
                     'ERC20': 'ETH',
                     'TRC20': 'TRX',
                     'BEP20': 'BSC',
+                    'ACA': 'ACA',
+                    'ADA': 'ADA',
+                    'ALGO': 'ALGO',
+                    'APT': 'APTOS',
+                    'AR': 'AR',
+                    'ARBONE': 'ARBI',
+                    'AVAXC': 'CAVAX',
+                    'AVAXX': 'XAVAX',
+                    'ATOM': 'ATOM',
+                    'BCH': 'BCH',
+                    'BEP2': 'BNB',
+                    'CHZ': 'CHZ',
+                    'DCR': 'DCR',
+                    'DGB': 'DGB',
+                    'DOGE': 'DOGE',
+                    'DOT': 'DOT',
+                    'EGLD': 'EGLD',
+                    'EOS': 'EOS',
+                    'ETC': 'ETC',
+                    'ETHF': 'ETHF',
+                    'ETHW': 'ETHW',
+                    'FIL': 'FIL',
+                    'STEP': 'FITFI',
+                    'FLOW': 'FLOW',
+                    'FTM': 'FTM',
+                    'GLMR': 'GLMR',
+                    'HBAR': 'HBAR',
+                    'HNT': 'HNT',
+                    'ICP': 'ICP',
+                    'ICX': 'ICX',
+                    'KDA': 'KDA',
+                    'KLAY': 'KLAY',
+                    'KMA': 'KMA',
+                    'KSM': 'KSM',
+                    'LTC': 'LTC',
+                    // 'TERRA': 'LUNANEW',
+                    // 'TERRACLASSIC': 'LUNA',
+                    'MATIC': 'MATIC',
+                    'MINA': 'MINA',
+                    'MOVR': 'MOVR',
+                    'NEAR': 'NEAR',
+                    'NEM': 'NEM',
+                    'OASYS': 'OAS',
+                    'OASIS': 'ROSE',
                     'OMNI': 'OMNI',
-                    'SPL': 'SOL',
-                },
-                'networksById': {
-                    'ETH': 'ERC20',
-                    'TRX': 'TRC20',
-                    'BSC': 'BEP20',
-                    'OMNI': 'OMNI',
-                    'SPL': 'SOL',
+                    'ONE': 'ONE',
+                    'OPTIMISM': 'OP',
+                    'POKT': 'POKT',
+                    'QTUM': 'QTUM',
+                    'RVN': 'RVN',
+                    'SC': 'SC',
+                    'SCRT': 'SCRT',
+                    'SOL': 'SOL',
+                    'STX': 'STX',
+                    'THETA': 'THETA',
+                    'TON': 'TON',
+                    'WAVES': 'WAVES',
+                    'WAX': 'WAXP',
+                    'XDC': 'XDC',
+                    'XEC': 'XEC',
+                    'XLM': 'XLM',
+                    'XRP': 'XRP',
+                    'XTZ': 'XTZ',
+                    'XYM': 'XYM',
+                    'ZEN': 'ZEN',
+                    'ZIL': 'ZIL',
+                    'ZKSYNC': 'ZKSYNC',
+                    // todo: uncomment after consensus
+                    // 'CADUCEUS': 'CMP',
+                    // 'KON': 'KON', // konpay, "konchain"
+                    // 'AURORA': 'AURORA',
+                    // 'BITCOINGOLD': 'BTG',
                 },
                 'defaultNetwork': 'ERC20',
                 'defaultNetworks': {
@@ -5302,15 +5367,14 @@ export default class bybit extends Exchange {
         //     }
         //
         const address = this.safeString (depositAddress, 'addressDeposit');
-        const tag = this.safeString (depositAddress, 'tagDeposit');
         const code = this.safeString (currency, 'code');
         const chain = this.safeString (depositAddress, 'chain');
         this.checkAddress (address);
         return {
             'currency': code,
             'address': address,
-            'tag': tag,
-            'network': chain,
+            'tag': this.safeString (depositAddress, 'tagDeposit'),
+            'network': this.networkIdToCode (chain, code),
             'info': depositAddress,
         };
     }
@@ -5330,6 +5394,11 @@ export default class bybit extends Exchange {
         const request = {
             'coin': currency['id'],
         };
+        let networkCode = undefined;
+        [ networkCode, params ] = this.handleNetworkCodeAndParams (params);
+        if (networkCode !== undefined) {
+            request['chainType'] = this.networkCodeToId (networkCode, code);
+        }
         const response = await this.privateGetV5AssetDepositQueryAddress (this.extend (request, params));
         //
         //     {
@@ -5371,41 +5440,11 @@ export default class bybit extends Exchange {
          * @returns {object} an [address structure]{@link https://docs.ccxt.com/#/?id=address-structure}
          */
         await this.loadMarkets ();
-        const [ networkCode, query ] = this.handleNetworkCodeAndParams (params);
-        const networkId = this.networkCodeToId (networkCode);
         const currency = this.currency (code);
-        const request = {
-            'coin': currency['id'],
-        };
-        if (networkId !== undefined) {
-            request['chainType'] = networkId;
-        }
-        const response = await this.privateGetV5AssetDepositQueryAddress (this.extend (request, query));
-        //
-        //     {
-        //         "retCode": 0,
-        //         "retMsg": "success",
-        //         "result": {
-        //             "coin": "USDT",
-        //             "chains": [
-        //                 {
-        //                     "chainType": "ERC20",
-        //                     "addressDeposit": "0xd9e1cd77afa0e50b452a62fbb68a3340602286c3",
-        //                     "tagDeposit": "",
-        //                     "chain": "ETH"
-        //                 }
-        //             ]
-        //         },
-        //         "retExtInfo": {},
-        //         "time": 1672192792860
-        //     }
-        //
-        const result = this.safeValue (response, 'result', {});
-        const chains = this.safeValue (result, 'chains', []);
-        const chainsIndexedById = this.indexBy (chains, 'chain');
-        const selectedNetworkId = this.selectNetworkIdFromRawNetworks (code, networkCode, chainsIndexedById);
-        const addressObject = this.safeValue (chainsIndexedById, selectedNetworkId, {});
-        return this.parseDepositAddress (addressObject, currency);
+        const [ networkCode, paramsOmited ] = this.handleNetworkCodeAndParams (params);
+        const indexedAddresses = await this.fetchDepositAddressesByNetwork (code, paramsOmited);
+        const selectedNetworkCode = this.selectNetworkCodeFromUnifiedNetworks (currency['code'], networkCode, indexedAddresses);
+        return indexedAddresses[selectedNetworkCode];
     }
 
     async fetchDeposits (code: Str = undefined, since: Int = undefined, limit: Int = undefined, params = {}): Promise<Transaction[]> {
@@ -5953,9 +5992,8 @@ export default class bybit extends Exchange {
             request['tag'] = tag;
         }
         const [ networkCode, query ] = this.handleNetworkCodeAndParams (params);
-        const networkId = this.networkCodeToId (networkCode);
-        if (networkId !== undefined) {
-            request['chain'] = networkId.toUpperCase ();
+        if (networkCode !== undefined) {
+            request['chain'] = this.networkCodeToId (networkCode);
         }
         const response = await this.privatePostV5AssetWithdrawCreate (this.extend (request, query));
         //
