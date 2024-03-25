@@ -306,6 +306,7 @@ export default class coinbaseinternational extends coinbaseinternationalRest {
         //
         const ticker = this.parseWsTicker (message);
         const channel = this.safeString (message, 'channel');
+        this.streamProduce ('tickers', ticker);
         client.resolve (ticker, channel);
         client.resolve (ticker, channel + '::' + ticker['symbol']);
     }
@@ -411,6 +412,7 @@ export default class coinbaseinternational extends coinbaseinternationalRest {
         }
         const tradesArray = this.trades[symbol];
         tradesArray.append (trade);
+        this.streamProduce ('trades', trade);
         this.trades[symbol] = tradesArray;
         client.resolve (tradesArray, channel);
         client.resolve (tradesArray, channel + '::' + trade['symbol']);
@@ -637,6 +639,7 @@ export default class coinbaseinternational extends coinbaseinternationalRest {
     }
 
     handleMessage (client, message) {
+        this.streamProduce ('raw', message);
         if (this.handleErrorMessage (client, message)) {
             return;
         }

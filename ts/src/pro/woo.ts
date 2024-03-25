@@ -231,6 +231,7 @@ export default class woo extends wooRest {
         const ticker = this.parseWsTicker (data, market);
         ticker['symbol'] = market['symbol'];
         this.tickers[market['symbol']] = ticker;
+        this.streamProduce ('tickers', ticker);
         client.resolve (ticker, topic);
         return message;
     }
@@ -297,6 +298,7 @@ export default class woo extends wooRest {
             const ticker = this.parseWsTicker (this.extend (data[i], { 'date': timestamp }), market);
             this.tickers[market['symbol']] = ticker;
             result.push (ticker);
+            this.streamProduce ('tickers', ticker);
         }
         client.resolve (result, topic);
     }
@@ -421,6 +423,7 @@ export default class woo extends wooRest {
             tradesArray = new ArrayCache (limit);
         }
         tradesArray.append (trade);
+        this.streamProduce ('trades', trade);
         this.trades[symbol] = tradesArray;
         client.resolve (tradesArray, topic);
     }
@@ -914,6 +917,7 @@ export default class woo extends wooRest {
     }
 
     handleMessage (client: Client, message) {
+        this.streamProduce ('raw', message);
         if (this.handleErrorMessage (client, message)) {
             return;
         }

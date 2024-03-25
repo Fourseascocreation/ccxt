@@ -375,6 +375,7 @@ export default class bybit extends bybitRest {
         parsed['datetime'] = this.iso8601 (timestamp);
         this.tickers[symbol] = parsed;
         const messageHash = 'ticker:' + symbol;
+        this.streamProduce ('tickers', parsed);
         client.resolve (this.tickers[symbol], messageHash);
     }
 
@@ -710,6 +711,7 @@ export default class bybit extends bybitRest {
         for (let j = 0; j < trades.length; j++) {
             const parsed = this.parseWsTrade (trades[j], market);
             stored.append (parsed);
+            this.streamProduce ('trades', parsed);
         }
         const messageHash = 'trade' + ':' + symbol;
         client.resolve (stored, messageHash);
@@ -1757,6 +1759,7 @@ export default class bybit extends bybitRest {
     }
 
     handleMessage (client: Client, message) {
+        this.streamProduce ('raw', message);
         if (this.handleErrorMessage (client, message)) {
             return;
         }

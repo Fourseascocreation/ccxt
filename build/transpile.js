@@ -339,8 +339,12 @@ class Transpiler {
             [ /\.checkConflictingProxies\s/g, '.check_conflicting_proxies'],
             [ /\.parseMarket\s/g, '.parse_market'],
             [ /\.isRoundNumber\s/g, '.is_round_number'],
+            [ /\.setupStream\s/g, '.setup_stream'],
+            [ /\.streamToSymbol\s/g, '.stream_to_symbol'],
             [ /\.getDescribeForExtendedWsExchange\s/g, '.get_describe_for_extended_ws_exchange'],
             [ /\.watchMultiple\s/g, '.watch_multiple'],
+            [ /\.addWatchFunction\s/g, '.add_watch_function'],
+            [ /activeWatchFunctions/g, 'active_watch_functions'],
             [ /\.intToBase16\s/g, '.int_to_base16'],
             [ /\.handleParamString\s/g, '.handle_param_string'],
             [ /\.fetchIsolatedBorrowRates\s/g, '.fetch_isolated_borrow_rates'],
@@ -545,6 +549,7 @@ class Transpiler {
             [ /(\s+) \* @returns \{(.+)\}/g, '$1:returns $2:' ], // docstring return
             [ /(\s+ \* @param \{[\]\[\|a-zA-Z]+\} )([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+) (.*)/g, '$1$2[\'$3\'] $4' ], // docstring params.anything
             [ /(\s+) \* @([a-z]+) \{([\]\[a-zA-Z\|]+)\} ([a-zA-Z0-9_\-\.\[\]\']+)/g, '$1:$2 $3 $4:' ], // docstring param
+            [ /\.\.\.([^\s]+)/g, "*$1"], // spread indicator
         ])
     }
 
@@ -760,6 +765,7 @@ class Transpiler {
             [ /\~([\]\[\|@\.\s+\:\/#()\-a-zA-Z0-9_-]+?)\~/g, '{$1}' ], // resolve the "arrays vs url params" conflict (both are in {}-brackets)
             [ /(\s+ \* @(param|return) {[^}]*)array\(\)([^}]*}.*)/g, '$1[]$3' ], // docstring type conversion
             [ /(\s+ \* @(param|return) {[^}]*)object([^}]*}.*)/g, '$1array$3' ], // docstring type conversion
+            [ /\.\.\.(?=[a-zA-Z])/g, '...$'], // spread indicator
         ])
     }
 
@@ -1019,6 +1025,7 @@ class Transpiler {
             'Tickers': /-> Tickers:/,
             'Trade': /-> (?:List\[)?Trade/,
             'Transaction': /-> (?:List\[)?Transaction/,
+            'ConsumerFunction': /: ConsumerFunction =/,
             'TransferEntry': /-> TransferEntry:/,
         }
         const matches = []
@@ -1670,6 +1677,8 @@ class Transpiler {
                 'OrderSide': 'string',
                 'Dictionary<any>': 'array',
                 'Dict': 'array',
+                'Topic': 'string',
+                'ConsumerFunction': 'mixed',
             }
             const phpArrayRegex = /^(?:Market|Currency|Account|AccountStructure|BalanceAccount|object|OHLCV|Order|OrderBook|Tickers?|Trade|Transaction|Balances?|MarketInterface|TransferEntry|Leverages|Leverage|Greeks|MarginModes|MarginMode|LastPrice|LastPrices)( \| undefined)?$|\w+\[\]/
             let phpArgs = args.map (x => {

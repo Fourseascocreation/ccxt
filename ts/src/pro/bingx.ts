@@ -170,6 +170,7 @@ export default class bingx extends bingxRest {
         const ticker = this.parseWsTicker (data, market);
         this.tickers[symbol] = ticker;
         const messageHash = market['id'] + '@ticker';
+        this.streamProduce ('tickers', ticker);
         client.resolve (ticker, messageHash);
     }
 
@@ -341,6 +342,7 @@ export default class bingx extends bingxRest {
         }
         for (let j = 0; j < trades.length; j++) {
             stored.append (trades[j]);
+            this.streamProduce ('trades', trades[j]);
         }
         client.resolve (stored, messageHash);
     }
@@ -1082,6 +1084,7 @@ export default class bingx extends bingxRest {
     }
 
     handleMessage (client: Client, message) {
+        this.streamProduce ('raw', message);
         if (!this.handleErrorMessage (client, message)) {
             return;
         }

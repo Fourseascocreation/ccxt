@@ -204,6 +204,7 @@ export default class bitget extends bitgetRest {
         const symbol = ticker['symbol'];
         this.tickers[symbol] = ticker;
         const messageHash = 'ticker:' + symbol;
+        this.streamProduce ('tickers', ticker);
         client.resolve (ticker, messageHash);
     }
 
@@ -692,6 +693,7 @@ export default class bitget extends bitgetRest {
             const rawTrade = data[index];
             const parsed = this.parseWsTrade (rawTrade, market);
             stored.append (parsed);
+            this.streamProduce ('trades', parsed);
         }
         const messageHash = 'trade:' + symbol;
         client.resolve (stored, messageHash);
@@ -1719,6 +1721,7 @@ export default class bitget extends bitgetRest {
         //        "arg": { instType: 'SPOT', channel: "account", instId: "default" }
         //    }
         //
+        this.streamProduce ('raw', message);
         if (this.handleErrorMessage (client, message)) {
             return;
         }
