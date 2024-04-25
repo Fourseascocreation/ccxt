@@ -541,11 +541,8 @@ export default class Exchange {
                 'fetchBalanceWs': undefined,
                 'fetchBidsAsks': undefined,
                 'fetchBorrowInterest': undefined,
-                'fetchBorrowRate': undefined,
                 'fetchBorrowRateHistories': undefined,
                 'fetchBorrowRateHistory': undefined,
-                'fetchBorrowRates': undefined,
-                'fetchBorrowRatesPerSymbol': undefined,
                 'fetchCanceledAndClosedOrders': undefined,
                 'fetchCanceledOrders': undefined,
                 'fetchClosedOrder': undefined,
@@ -3422,10 +3419,6 @@ export default class Exchange {
         });
     }
 
-    async fetchBorrowRate (code: string, amount, params = {}): Promise<{}> {
-        throw new NotSupported (this.id + ' fetchBorrowRate is deprecated, please use fetchCrossBorrowRate or fetchIsolatedBorrowRate instead');
-    }
-
     async repayCrossMargin (code: string, amount, params = {}): Promise<{}> {
         throw new NotSupported (this.id + ' repayCrossMargin is not support yet');
     }
@@ -4457,7 +4450,7 @@ export default class Exchange {
 
     async fetchCrossBorrowRate (code: string, params = {}): Promise<{}> {
         await this.loadMarkets ();
-        if (!this.has['fetchBorrowRates']) {
+        if (!this.has['fetchCrossBorrowRates']) {
             throw new NotSupported (this.id + ' fetchCrossBorrowRate() is not supported yet');
         }
         const borrowRates = await this.fetchCrossBorrowRates (params);
@@ -4470,7 +4463,7 @@ export default class Exchange {
 
     async fetchIsolatedBorrowRate (symbol: string, params = {}): Promise<{}> {
         await this.loadMarkets ();
-        if (!this.has['fetchBorrowRates']) {
+        if (!this.has['fetchIsolatedBorrowRates']) {
             throw new NotSupported (this.id + ' fetchIsolatedBorrowRate() is not supported yet');
         }
         const borrowRates = await this.fetchIsolatedBorrowRates (params);
