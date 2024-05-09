@@ -12,7 +12,11 @@ if [ $# -gt 0 ]; then
 fi
 
 [[ -n "$TRAVIS_BUILD_ID" ]] && IS_TRAVIS="TRUE" || IS_TRAVIS="FALSE"
+[[ "$RUNSTEP" == "PY_JS_PHP" ]] && STAGE_PYJSPHP="TRUE" || STAGE_PYJSPHP="FALSE"
+[[ "$RUNSTEP" == "CSHARP" ]] && STAGE_CSHARP="TRUE" || STAGE_CSHARP="FALSE"
+[[ "$RUNSTEP" == "finalstage" ]] && STAGE_DEPLOY="TRUE" || STAGE_DEPLOY="FALSE"
 
+echo "RUNSTEP: $RUNSTEP"
 msgPrefix="⬤ BUILD.SH : "
 
 function run_tests {
@@ -34,14 +38,24 @@ function run_tests {
   if [ -z "$rest_pid" ]; then
     if [ -z "$rest_args" ] || { [ -n "$rest_args" ] && [ "$rest_args" != "skip" ]; }; then
       # shellcheck disable=SC2086
-      node run-tests --js --python-async --php-async --csharp --useProxy $rest_args &
+      if [ "$STAGE_PYJSPHP" == "TRUE" ]; then
+        npm run test-pyjsphp --useProxy -- $rest_args &
+      fi
+      if [ "$STAGE_CSHARP" == "TRUE" ]; then
+        npm run test-cs --useProxy -- $rest_args &
+      fi;
       local rest_pid=$!
     fi
   fi
   if [ -z "$ws_pid" ]; then
     if [ -z "$ws_args" ] || { [ -n "$ws_args" ] && [ "$ws_args" != "skip" ]; }; then
       # shellcheck disable=SC2086
-      node run-tests --ws --js --python-async --php-async --csharp --useProxy $ws_args &
+      if [ "$STAGE_PYJSPHP" == "TRUE" ]; then
+        npm run test-pyjsphp-ws $ws_args &
+      fi;
+      if [ "$STAGE_CSHARP" == "TRUE" ]; then
+        npm run test-cs-ws $ws_args &
+      fi;
       local ws_pid=$!
     fi
   fi
@@ -56,10 +70,14 @@ function run_tests {
 }
 
 build_and_test_all () {
-  npm run force-build
+  if [ "$STAGE_PYJSPHP" == "TRUE" ]; then
+    npm run force-build-pyjsphp
+  fi
+  if [ "$STAGE_CSHARP" == "TRUE" ]; then
+    npm run force-build-cs
+  fi
   if [ "$IS_TRAVIS" = "TRUE" ]; then
     merged_pull_request="$(git show --format="%s" -s HEAD | sed -nE 's/Merge pull request #([0-9]{5}).+$/\1/p')"
-    echo "DEBUG: $merged_pull_request" # for debugging
     if [ -n "$merged_pull_request" ]; then
       echo "Travis is building merge commit #$merged_pull_request"
       # run every 3 merged pull requests
@@ -80,11 +98,17 @@ build_and_test_all () {
       #   cd  ..
       # fi
     fi
-    npm run test-base
-    npm run test-base-ws
-    node ./utils/test-commonjs.cjs
-    npm run package-test
-    npm run test-freshness
+    if [ "$STAGE_PYJSPHP" == "TRUE" ]; then
+      npm run test-base-pyjsphp
+      npm run test-base-ws-pyjsphp
+      npm run commonjs-test
+      npm run package-test
+      npm run test-freshness
+    fi
+    if [ "$STAGE_CSHARP" == "TRUE" ]; then
+      npm run test-base-cs
+      npm run test-base-ws-cs
+    fi
     if [ "$IS_TRAVIS" = "TRUE" ] && [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
       echo "Travis built all files and static/base tests passed, will push to master before running live tests"
       env COMMIT_MESSAGE="${TRAVIS_COMMIT_MESSAGE}" GITHUB_TOKEN=${GITHUB_TOKEN} SHOULD_TAG=false ./build/push.sh;
@@ -103,7 +127,6 @@ build_and_test_all () {
 ### CHECK IF THIS IS A PR ###
 # for appveyor, when PR is from fork, APPVEYOR_REPO_BRANCH is "master" and "APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH" is branch name. if PR is from same repo, only APPVEYOR_REPO_BRANCH is set (and it is branch name)
 if { [ "$IS_TRAVIS" = "TRUE" ] && [ "$TRAVIS_PULL_REQUEST" = "false" ]; } || { [ "$IS_TRAVIS" != "TRUE" ] && [ -z "$APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH" ]; }; then
-
   echo "$msgPrefix This is a master commit (not a PR), will build everything"
   build_and_test_all
 fi
@@ -117,7 +140,7 @@ fi
 
 diff=$(git diff origin/master --name-only)
 # temporarily remove the below scripts from diff
-diff=$(echo "$diff" | sed -e "s/^build\.sh//")
+# diff=$(echo "$diff" | sed -e "s/^build\.sh//")
 diff=$(echo "$diff" | sed -e "s/^skip\-tests\.json//")
 diff=$(echo "$diff" | sed -e "s/^ts\/src\/test\/static.*json//") #remove static tests and markets
 # diff=$(echo "$diff" | sed -e "s/^\.travis\.yml//")
@@ -125,7 +148,7 @@ diff=$(echo "$diff" | sed -e "s/^ts\/src\/test\/static.*json//") #remove static 
 # diff=$(echo "$diff" | sed -e "s/python\/qa\.py//")
 #echo $diff 
 
-critical_pattern='Client(Trait)?\.php|Exchange\.php|\/base|^build|static_dependencies|^run-tests|package(-lock)?\.json|composer\.json|ccxt\.ts|__init__.py|test' # add \/test|
+critical_pattern='Client(Trait)?\.php|Exchange\.php|\/base|build\.sh|^build|\.travis\.yml|static_dependencies|^run-tests|package(-lock)?\.json|composer\.json|ccxt\.ts|__init__.py|test' # add \/test|
 if [[ "$diff" =~ $critical_pattern ]]; then
   echo "$msgPrefix Important changes detected - doing full build & test"
   echo "$diff"
@@ -160,21 +183,32 @@ npm run validate-types ${REST_EXCHANGES[*]}
 echo "$msgPrefix REST_EXCHANGES TO BE TRANSPILED: ${REST_EXCHANGES[*]}"
 PYTHON_FILES=()
 for exchange in "${REST_EXCHANGES[@]}"; do
-  npm run eslint "ts/src/$exchange.ts"
-  node build/transpile.js $exchange --force --child
-  npm run transpileCsSingle -- $exchange
-  PYTHON_FILES+=("python/ccxt/$exchange.py")
-  PYTHON_FILES+=("python/ccxt/async_support/$exchange.py")
+  if [ "$STAGE_PYJSPHP" == "TRUE" ]; then
+    npm run eslint "ts/src/$exchange.ts"
+    node build/transpile.js $exchange --force --child
+    PYTHON_FILES+=("python/ccxt/$exchange.py")
+    PYTHON_FILES+=("python/ccxt/async_support/$exchange.py")
+  fi
+  if [ "$STAGE_CSHARP" == "TRUE" ]; then
+    tsx build/csharpTranspiler.ts $exchange
+  fi
 done
 echo "$msgPrefix WS_EXCHANGES TO BE TRANSPILED: ${WS_EXCHANGES[*]}"
 for exchange in "${WS_EXCHANGES[@]}"; do
-  npm run eslint "ts/src/pro/$exchange.ts"
-  node build/transpileWS.js $exchange --force --child
-  npm run transpileCsSingle -- $exchange --ws
-  PYTHON_FILES+=("python/ccxt/pro/$exchange.py")
+  if [ "$STAGE_PYJSPHP" == "TRUE" ]; then
+    npm run eslint "ts/src/pro/$exchange.ts"
+    node build/transpileWS.js $exchange --force --child
+    PYTHON_FILES+=("python/ccxt/pro/$exchange.py")
+  fi
+  if [ "$STAGE_CSHARP" == "TRUE" ]; then
+    tsx build/csharpTranspiler.ts $exchange --ws
+  fi
 done
 # faster version of post-transpile
-npm run check-php-syntax
+
+if [ "$STAGE_PYJSPHP" == "TRUE" ]; then
+  npm run check-php-syntax
+fi
 
 # only run the python linter if exchange related files are changed
 if [ ${#PYTHON_FILES[@]} -gt 0 ]; then
@@ -192,12 +226,15 @@ if [ ${#REST_EXCHANGES[@]} -eq 0 ] && [ ${#WS_EXCHANGES[@]} -eq 0 ]; then
   exit
 fi
 
-# build dotnet project
-npm run buildCS
-
-# run base tests (base js,py,php, brokerId )
-# npm run test-base
-npm run test-js-base && npm run test-python-base && npm run test-php-base && npm run id-tests
+if [ "$STAGE_CSHARP" == "TRUE" ]; then
+  # build dotnet project
+  npm run buildCS && npm run id-tests-cs
+fi
+if [ "$STAGE_PYJSPHP" == "TRUE" ]; then
+  # run base tests (base js,py,php, brokerId )
+  # npm run test-base
+  npm run test-js-base && npm run test-python-base && npm run test-php-base && npm run id-tests-pyjsphp
+fi
 
 # rest_args=${REST_EXCHANGES[*]} || "skip"
 rest_args=$(IFS=" " ; echo "${REST_EXCHANGES[*]}") || "skip"
@@ -207,18 +244,26 @@ ws_args=$(IFS=" " ; echo "${WS_EXCHANGES[*]}") || "skip"
 
 #request static tests
 for exchange in "${REST_EXCHANGES[@]}"; do
-  npm run request-js -- $exchange
-  npm run request-py -- $exchange
-  php php/test/test_async.php $exchange --requestTests
-  npm run request-cs -- $exchange
+  if [ "$STAGE_PYJSPHP" == "TRUE" ]; then
+    npm run request-js -- $exchange
+    npm run request-py -- $exchange
+    php php/test/test_async.php $exchange --requestTests
+  fi
+  if [ "$STAGE_CSHARP" == "TRUE" ]; then
+    npm run request-cs -- $exchange
+  fi
 done
 
 #response static tests
 for exchange in "${REST_EXCHANGES[@]}"; do
-  npm run response-js -- $exchange
-  npm run response-py -- $exchange
-  php php/test/test_async.php $exchange --responseTests
-  npm run response-cs -- $exchange
+  if [ "$STAGE_PYJSPHP" == "TRUE" ]; then
+    npm run response-js -- $exchange
+    npm run response-py -- $exchange
+    php php/test/test_async.php $exchange --responseTests
+  fi
+  if [ "$STAGE_CSHARP" == "TRUE" ]; then
+    npm run response-cs -- $exchange
+  fi
 done
 
 run_tests "$rest_args" "$ws_args"
