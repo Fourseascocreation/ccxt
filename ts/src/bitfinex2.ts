@@ -3477,7 +3477,7 @@ export default class bitfinex2 extends Exchange {
         return this.parseLiquidations (response, market, since, limit);
     }
 
-    parseLiquidations (liquidations: Dict[], market: Market = undefined, since: Int = undefined, limit: Int = undefined): Liquidation[] {
+    parseLiquidations (liquidations: any, market: Market = undefined, since: Int = undefined, limit: Int = undefined): Liquidation[] {
         /**
          * @ignore
          * @method
