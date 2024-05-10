@@ -6,7 +6,7 @@ import { ExchangeError, InsufficientFunds, BadRequest, BadSymbol, InvalidOrder, 
 import { TICK_SIZE } from './base/functions/number.js';
 import { Precise } from './base/Precise.js';
 import { sha256 } from './static_dependencies/noble-hashes/sha256.js';
-import type { Balances, Currency, Greeks, Int, Market, MarketInterface, OHLCV, Order, OrderBook, OrderSide, OrderType, Str, Strings, Ticker, Tickers, Trade, Position, Leverage, MarginMode, Num, Option, MarginModification, Currencies, Dict } from './base/types.js';
+import type { Balances, Currency, Greeks, Int, Market, MarketInterface, OHLCV, Order, OrderBook, OrderSide, OrderType, Str, Strings, Ticker, Tickers, Trade, Position, Leverage, MarginMode, Num, Option, MarginModification, Currencies, Dict, OpenInterest } from './base/types.js';
 
 //  ---------------------------------------------------------------------------
 
@@ -2709,7 +2709,7 @@ export default class delta extends Exchange {
         };
     }
 
-    async fetchOpenInterest (symbol: string, params = {}) {
+    async fetchOpenInterest (symbol: string, params = {}): Promise<OpenInterest> {
         /**
          * @method
          * @name delta#fetchOpenInterest
@@ -2784,7 +2784,7 @@ export default class delta extends Exchange {
         return this.parseOpenInterest (result, market);
     }
 
-    parseOpenInterest (interest, market: Market = undefined) {
+    parseOpenInterest (interest: Dict, market: Market = undefined): OpenInterest {
         //
         //     {
         //         "close": 894.0,
