@@ -1,7 +1,7 @@
 //  ---------------------------------------------------------------------------
 
 import poloniexfuturesRest from '../poloniexfutures.js';
-import { AuthenticationError, BadRequest, InvalidNonce } from '../base/errors.js';
+import { AuthenticationError, BadRequest, InvalidNonce, OperationFailed } from '../base/errors.js';
 import { ArrayCache, ArrayCacheBySymbolById } from '../base/ws/Cache.js';
 import type { Int, Str, OrderBook, Order, Trade, Ticker, Balances } from '../base/types.js';
 import Client from '../base/ws/Client.js';
@@ -1024,7 +1024,15 @@ export default class poloniexfutures extends poloniexfuturesRest {
         //        "type": "error"
         //    }
         //
-        client.reject (message);
+        if (typeof message !== 'string') {
+            try {
+                message = this.json (message);
+            } catch (e) {
+                message = message.toString ();
+            }
+        }
+        const error = new OperationFailed (this.id + ' WS handleErrorMessage() : ' + message);
+        client.reject (error); // todo: maybe exception instead of string
     }
 
     handleMessage (client: Client, message) {
