@@ -6,7 +6,7 @@ import { AuthenticationError, PermissionDenied, AccountSuspended, ExchangeError,
 import { Precise } from './base/Precise.js';
 import { sha256 } from './static_dependencies/noble-hashes/sha256.js';
 import { DECIMAL_PLACES } from './base/functions/number.js';
-import type { TransferEntry, Int, OrderSide, OHLCV, FundingRateHistory, Order, OrderType, OrderRequest, Str, Trade, Balances, Transaction, Ticker, OrderBook, Tickers, Market, Strings, Currency, Position, Dict, Leverage, MarginMode, Num, MarginModification, Currencies, TransferEntries } from './base/types.js';
+import type { TransferEntry, Int, OrderSide, OHLCV, FundingRateHistory, Order, OrderType, OrderRequest, Str, Trade, Balances, Transaction, Ticker, OrderBook, Tickers, Market, Strings, Currency, Position, Dict, Leverage, MarginMode, Num, MarginModification, Currencies, TransferEntries, Liquidation, OpenInterest } from './base/types.js';
 
 //  ---------------------------------------------------------------------------
 
@@ -1355,7 +1355,7 @@ export default class bingx extends Exchange {
         return this.filterBySymbolSinceLimit (sorted, market['symbol'], since, limit) as FundingRateHistory[];
     }
 
-    async fetchOpenInterest (symbol: string, params = {}) {
+    async fetchOpenInterest (symbol: string, params = {}): Promise<OpenInterest> {
         /**
          * @method
          * @name bingx#fetchOpenInterest
@@ -1386,7 +1386,7 @@ export default class bingx extends Exchange {
         return this.parseOpenInterest (data, market);
     }
 
-    parseOpenInterest (interest, market: Market = undefined) {
+    parseOpenInterest (interest: Dict, market: Market = undefined): OpenInterest {
         //
         //    {
         //        "openInterest": "3289641547.10",
@@ -4149,7 +4149,7 @@ export default class bingx extends Exchange {
         return this.parseLiquidations (liquidations, market, since, limit);
     }
 
-    parseLiquidation (liquidation, market: Market = undefined) {
+    parseLiquidation (liquidation: Dict, market: Market = undefined): Liquidation {
         //
         //     {
         //         "time": "int64",

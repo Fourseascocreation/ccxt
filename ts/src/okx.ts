@@ -6,7 +6,7 @@ import { ExchangeError, ExchangeNotAvailable, OnMaintenance, ArgumentsRequired, 
 import { Precise } from './base/Precise.js';
 import { TICK_SIZE } from './base/functions/number.js';
 import { sha256 } from './static_dependencies/noble-hashes/sha256.js';
-import type { TransferEntry, Int, OrderSide, OrderType, Trade, OHLCV, Order, FundingRateHistory, OrderRequest, FundingHistory, Str, Transaction, Ticker, OrderBook, Balances, Tickers, Market, Greeks, Strings, MarketInterface, Currency, Leverage, Num, Account, OptionChain, Option, MarginModification, TradingFeeInterface, Currencies, Conversion, CancellationRequest, Dict, Position, CrossBorrowRate, CrossBorrowRates, TransferEntries } from './base/types.js';
+import type { TransferEntry, Int, OrderSide, OrderType, Trade, OHLCV, Order, FundingRateHistory, OrderRequest, FundingHistory, Str, Transaction, Ticker, OrderBook, Balances, Tickers, Market, Greeks, Strings, MarketInterface, Currency, Leverage, Num, Account, OptionChain, Option, MarginModification, TradingFeeInterface, Currencies, Conversion, CancellationRequest, Dict, Position, CrossBorrowRate, CrossBorrowRates, TransferEntries, OpenInterest } from './base/types.js';
 
 //  ---------------------------------------------------------------------------
 
@@ -7076,7 +7076,7 @@ export default class okx extends Exchange {
         };
     }
 
-    async fetchOpenInterest (symbol: string, params = {}) {
+    async fetchOpenInterest (symbol: string, params = {}): Promise<OpenInterest> {
         /**
          * @method
          * @name okx#fetchOpenInterest
@@ -7118,7 +7118,7 @@ export default class okx extends Exchange {
         return this.parseOpenInterest (data[0], market);
     }
 
-    async fetchOpenInterestHistory (symbol: string, timeframe = '1d', since: Int = undefined, limit: Int = undefined, params = {}) {
+    async fetchOpenInterestHistory (symbol: string, timeframe = '1d', since: Int = undefined, limit: Int = undefined, params = {}): Promise<OpenInterest[]> {
         /**
          * @method
          * @name okx#fetchOpenInterestHistory
@@ -7188,7 +7188,7 @@ export default class okx extends Exchange {
         return this.parseOpenInterests (data, undefined, since, limit);
     }
 
-    parseOpenInterest (interest, market: Market = undefined) {
+    parseOpenInterest (interest: Dict, market: Market = undefined): OpenInterest {
         //
         // fetchOpenInterestHistory
         //
