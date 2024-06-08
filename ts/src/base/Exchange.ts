@@ -6985,6 +6985,14 @@ export default class Exchange {
          */
         throw new NotSupported (this.id + ' fetchTransfers () is not supported yet');
     }
+
+    mergeAll (items: Dict[], fields: Dict) {
+        const result: Dict[] = [];
+        for (let i = 0; i < items.length; i++) {
+            result.push (this.merge (items[i], fields));
+        }
+        return result;
+    }
 }
 
 export {
