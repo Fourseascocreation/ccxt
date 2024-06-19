@@ -2474,6 +2474,7 @@ class okx extends Exchange {
              * @see https://www.okx.com/docs-v5/en/#funding-account-rest-api-get-balance
              * @see https://www.okx.com/docs-v5/en/#trading-account-rest-api-get-balance
              * @param {array} [$params] extra parameters specific to the exchange API endpoint
+             * @param {string} [$params->type] wallet type, ['funding' or 'trading'] default is 'trading'
              * @return {array} a ~@link https://docs.ccxt.com/#/?id=balance-structure balance structure~
              */
             Async\await($this->load_markets());
@@ -8059,7 +8060,7 @@ class okx extends Exchange {
         }) ();
     }
 
-    public function parse_conversion(array $conversion, ?array $fromCurrency = null, ?array $toCurrency = null): Conversion {
+    public function parse_conversion(array $conversion, ?array $fromCurrency = null, ?array $toCurrency = null): array {
         //
         // fetchConvertQuote
         //

@@ -2437,6 +2437,7 @@ class okx extends Exchange {
          * @see https://www.okx.com/docs-v5/en/#funding-account-rest-api-get-balance
          * @see https://www.okx.com/docs-v5/en/#trading-account-rest-api-get-balance
          * @param {array} [$params] extra parameters specific to the exchange API endpoint
+         * @param {string} [$params->type] wallet type, ['funding' or 'trading'] default is 'trading'
          * @return {array} a ~@link https://docs.ccxt.com/#/?id=balance-structure balance structure~
          */
         $this->load_markets();
@@ -7702,7 +7703,7 @@ class okx extends Exchange {
         );
     }
 
-    public function fetch_convert_quote(string $fromCode, string $toCode, ?float $amount = null, $params = array ()): Conversion {
+    public function fetch_convert_quote(string $fromCode, string $toCode, ?float $amount = null, $params = array ()): array {
         /**
          * fetch a quote for converting from one currency to another
          * @see https://www.okx.com/docs-v5/en/#funding-account-rest-api-estimate-quote
@@ -7753,7 +7754,7 @@ class okx extends Exchange {
         return $this->parse_conversion($result, $fromCurrency, $toCurrency);
     }
 
-    public function create_convert_trade(string $id, string $fromCode, string $toCode, ?float $amount = null, $params = array ()): Conversion {
+    public function create_convert_trade(string $id, string $fromCode, string $toCode, ?float $amount = null, $params = array ()): array {
         /**
          * convert from one currency to another
          * @see https://www.okx.com/docs-v5/en/#funding-account-rest-api-convert-trade
@@ -7805,7 +7806,7 @@ class okx extends Exchange {
         return $this->parse_conversion($result, $fromCurrency, $toCurrency);
     }
 
-    public function fetch_convert_trade(string $id, ?string $code = null, $params = array ()): Conversion {
+    public function fetch_convert_trade(string $id, ?string $code = null, $params = array ()): array {
         /**
          * fetch the $data for a conversion trade
          * @see https://www.okx.com/docs-v5/en/#funding-account-rest-api-get-convert-history
@@ -7901,7 +7902,7 @@ class okx extends Exchange {
         return $this->parse_conversions($rows, $code, 'baseCcy', 'quoteCcy', $since, $limit);
     }
 
-    public function parse_conversion(array $conversion, ?array $fromCurrency = null, ?array $toCurrency = null): Conversion {
+    public function parse_conversion(array $conversion, ?array $fromCurrency = null, ?array $toCurrency = null): array {
         //
         // fetchConvertQuote
         //

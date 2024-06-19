@@ -1,3 +1,168 @@
+## 4.3.45 (2024-06-13)
+
+*  feat(exchange): remove cert (#22799) [31f76a03ef](https://github.com/ccxt/ccxt/commits/31f76a03ef8ca9e55eced0b5f500075d96ad201f)
+*  kucoin: added some new endpoints (#22798) [ea0ca5bcd0](https://github.com/ccxt/ccxt/commits/ea0ca5bcd0e72bbe1259a977fb90f0b70cdce5d0)
+*  Added support for missing currencies (#22800) [b0efa65d4e](https://github.com/ccxt/ccxt/commits/b0efa65d4e2836973bdca080e59bbef9e42819ab)
+*  Added support for missing currencies (#22800) [3e31e06b15](https://github.com/ccxt/ccxt/commits/3e31e06b15f2a77702021afb466539b291c5f5a4)
+*  New exchange: ox.fun (#22354) [cca1b93b88](https://github.com/ccxt/ccxt/commits/cca1b93b883dee25dad8c36e03c8b4ce699180a0)
+*  4.3.45 [56dda93c5b](https://github.com/ccxt/ccxt/commits/56dda93c5be9f85605e353c08f4dd8fb2c722b7f)
+
+
+## 4.3.44 (2024-06-12)
+
+*  fix(bitmex): guard handleOrderBook (#22786) [18f0bb4d76](https://github.com/ccxt/ccxt/commits/18f0bb4d763b6d2e5d08bfb063a94eed907e675a)
+*  fix(bitmex): guard handleOrderBook (#22786) [5ad350baa1](https://github.com/ccxt/ccxt/commits/5ad350baa1e34f052cb51d1855fc35c57dac6d19)
+*  feat(xt): restore (#22782) [69eadbe87c](https://github.com/ccxt/ccxt/commits/69eadbe87c1c7cf61cda8f385438b1e94835a342)
+*  feat(xt): restore (#22782) [e98fe1fb06](https://github.com/ccxt/ccxt/commits/e98fe1fb065d95d8aa2f71bee501fbaff0d5f235)
+*  feat(idTests): add xt (#22795) [c06c8af4bd](https://github.com/ccxt/ccxt/commits/c06c8af4bdf5247ad6b38b87859b23c4e4234b78)
+*  feat(idTests): add xt (#22795) [9e56773391](https://github.com/ccxt/ccxt/commits/9e5677339101ce738480a0b218956ffdfcee0660)
+*  4.3.44 [422060a059](https://github.com/ccxt/ccxt/commits/422060a059d288176bf1e835a1357982207190d3)
+
+
+## 4.3.43 (2024-06-11)
+
+*  feat(binance): add bbo static tests (#22759) [92b4beea63](https://github.com/ccxt/ccxt/commits/92b4beea630c710d890ecfed47aeecf826bc4048)
+*  feat(binance): add bbo static tests (#22759) [606018c498](https://github.com/ccxt/ccxt/commits/606018c4981777656d5bc05e76af814c76a7da3d)
+*  coinex: fetchCurrencies v2 (#22755) [9e8eb86f19](https://github.com/ccxt/ccxt/commits/9e8eb86f1930042811dcc0223fa949f1f942f0b4)
+*  coinex: fetchCurrencies v2 (#22755) [a67b51d270](https://github.com/ccxt/ccxt/commits/a67b51d2704f47c8c4f8bd56302ee461e6709ca3)
+*  feat(types): automate export process (#22771) [a3f3b9f203](https://github.com/ccxt/ccxt/commits/a3f3b9f203acb3dcb55b31ad90d9849870a0baf4)
+*  feat(types): automate export process (#22771) [fca2b8f1c0](https://github.com/ccxt/ccxt/commits/fca2b8f1c0d841e019e073732fecf0c236360a79)
+*  feat(phemex): add fetchOrder for USDT settled swaps (#22781) [5f13e7dc25](https://github.com/ccxt/ccxt/commits/5f13e7dc25d16d4885455f7dde8e5537bb499f6f)
+*  feat(binance): add internal payment history (#22772) [aa75d71e64](https://github.com/ccxt/ccxt/commits/aa75d71e64cf089486ab3027673ff9294a002fa5)
+*  Zonda cancel order unification (#22773) [1a126e2369](https://github.com/ccxt/ccxt/commits/1a126e236993c8e0116a9bcbf1717d4e9b88deca)
+*  fix(wazirx): cancelAllOrders response unification (#22774) [022a3cc225](https://github.com/ccxt/ccxt/commits/022a3cc2251555bd7863ae57b72ac60ca4151fff)
+*  4.3.43 [1ff62b5906](https://github.com/ccxt/ccxt/commits/1ff62b590657f2a786d8872143607f52c5421798)
+
+
+## 4.3.42 (2024-06-07)
+
+*  woo: update doc (#22746) [35909009b9](https://github.com/ccxt/ccxt/commits/35909009b9452180d44553240aeb3f75c0d8fead)
+*  fix(mexcWs): update contract url (#22751) [e049f0c08d](https://github.com/ccxt/ccxt/commits/e049f0c08dd160d26b2c95a7a0c2ae4d428edbb9)
+*  fix(cs): stringContent protection (#22752) [8252b0a0e9](https://github.com/ccxt/ccxt/commits/8252b0a0e9957112bf0c7d40e9f5a2d6bad1486f)
+*  fix(cs): stringContent protection (#22752) [129a34472f](https://github.com/ccxt/ccxt/commits/129a34472f4272746784a0ae8c3ce4a5bf67b434)
+*  fix(upbit): ws options (#22754) [661efec7d3](https://github.com/ccxt/ccxt/commits/661efec7d35b6b6b3c3e69041ccbdd2a95b0f838)
+*  fix(blockchaincom): cancelOrder, cancelAllOrders unified response (#22678) [812c047cfa](https://github.com/ccxt/ccxt/commits/812c047cfa2b48a651bafe9260b7a84dc17ee281)
+*  bitmart: updated the fetchTickers spot endpoint (#22680) [6291cce98b](https://github.com/ccxt/ccxt/commits/6291cce98bf388dfd60891ebdfefaea63a7806ab)
+*  bitmart: updated the fetchTickers spot endpoint (#22680) [45e407566b](https://github.com/ccxt/ccxt/commits/45e407566b30f5098e61d78e518a48988745e29b)
+*  4.3.42 [45b89d9c8f](https://github.com/ccxt/ccxt/commits/45b89d9c8f6dd7d7fae9486076d9ddbe1063fb1f)
+
+
+## 4.3.41 (2024-06-05)
+
+*  Bitstamp cancel order (#22669) [b72d1ca988](https://github.com/ccxt/ccxt/commits/b72d1ca988a1633b8f022224ea574afd1a14761a)
+*  Bitstamp cancel order (#22669) [f648cf39d1](https://github.com/ccxt/ccxt/commits/f648cf39d12d9622360b9a218465dbf189d07d67)
+*  fix(bitget): watchOrders spot margin (#22718) [eaa6d0dfcc](https://github.com/ccxt/ccxt/commits/eaa6d0dfcc7d680f1f67392103fadec3548cfebc)
+*  fix(bitget): watchOrders spot margin (#22718) [9af59482b2](https://github.com/ccxt/ccxt/commits/9af59482b298c48d83e0e1d70946855f95f80f8e)
+*  feat(binance): add copyTrading endpoints (#22730) [976de6eab6](https://github.com/ccxt/ccxt/commits/976de6eab6eb8fca43f939ff60935fc905e868b0)
+*  feat(orderbook): type variable (#22729) [0c36dffc8b](https://github.com/ccxt/ccxt/commits/0c36dffc8b03861c5716e548dbf968ae34f4edbe)
+*  feat(orderbook): type variable (#22729) [06c84139b9](https://github.com/ccxt/ccxt/commits/06c84139b98c79ebdea19b592833bd1858b54be1)
+*  feat(upbit): watch private topic (#22724) [3e616fa27e](https://github.com/ccxt/ccxt/commits/3e616fa27e31ea1d5d79ea08c76d6b28439339b7)
+*  feat(types.cs): handle info (#22731) [3c590b3830](https://github.com/ccxt/ccxt/commits/3c590b38309df25d417160e963ab1d8421da9596)
+*  fix(bitfinex2): createOrder parsing (#22733) [9a84f45eb5](https://github.com/ccxt/ccxt/commits/9a84f45eb55a238ce9a6b0af58e18c7b2eacb595)
+*  fix(bitfinex2): createOrder parsing (#22733) [9b54a59ff8](https://github.com/ccxt/ccxt/commits/9b54a59ff809ced2d05998110ee5d5edbcf875fb)
+*  fix(appveyor): cinst replacement (#22738) [e33a386c63](https://github.com/ccxt/ccxt/commits/e33a386c63535b511baa13ab607c806fde3e1912)
+*  fix(cs): update charset and fix uuid() (#22740) [338fd35bad](https://github.com/ccxt/ccxt/commits/338fd35bad3c6a9a2c6ab8974e70c09360c99cfa)
+*  4.3.41 [ec67c0c1ac](https://github.com/ccxt/ccxt/commits/ec67c0c1ac2614f7b52dce6d9a8fa47a43a68583)
+
+
+## 4.3.40 (2024-06-04)
+
+*  fix(binance): add swap to accountsByType (#22707) [5e5edcac4d](https://github.com/ccxt/ccxt/commits/5e5edcac4da965b4100778818dbbefc395bb1681)
+*  fix(hitbtc): currency network withdrawal and deposit status (#22705) [ccec2a1114](https://github.com/ccxt/ccxt/commits/ccec2a111478f35e706cbf06e0275374b32564d8)
+*  fix(hitbtc): currency network withdrawal and deposit status (#22705) [7353fcc442](https://github.com/ccxt/ccxt/commits/7353fcc442cb6fa4a61870931fb56b8b7d2957f0)
+*  Woofipro cancel order (#22709) [10b884fa99](https://github.com/ccxt/ccxt/commits/10b884fa992523b519415c6b109cae07df83b128)
+*  Woofipro cancel order (#22709) [2189aa1974](https://github.com/ccxt/ccxt/commits/2189aa19741aba52075a4056ae871df2c92ac36f)
+*  4.3.40 [ebb92d8f5d](https://github.com/ccxt/ccxt/commits/ebb92d8f5d5da097d2a508a40c4db15453b2a524)
+
+
+## 4.3.39 (2024-06-03)
+
+*  mexc reflink updated [35852efad3](https://github.com/ccxt/ccxt/commits/35852efad3b3871762b5f56ffd5a6599dbe39f34)
+*  mexc reflink updated [96307dbea5](https://github.com/ccxt/ccxt/commits/96307dbea511f7e669e90811760a5d8d659f04cd)
+*  fix(CS): urlencode, handle special cases (#22704) [e32140e730](https://github.com/ccxt/ccxt/commits/e32140e730d063f0b58b20d6833c2393683fa74e)
+*  fix(coinlist): cancelOrders encoding (#22706) [19a7b19cf9](https://github.com/ccxt/ccxt/commits/19a7b19cf9a117a4addd5842c37efa92d08df555)
+*  fix(coinlist): cancelOrders encoding (#22706) [0abc48d7e3](https://github.com/ccxt/ccxt/commits/0abc48d7e31cea86e45c35e8b313f92a309e6cba)
+*  4.3.39 [8b4d66ef7e](https://github.com/ccxt/ccxt/commits/8b4d66ef7ed9e4a6e4fa00ea8b3caa8b47a27a00)
+
+
+## 4.3.38 (2024-06-02)
+
+*  fix(coinex): fetchBalance switch statements (#22683) [7e62413e25](https://github.com/ccxt/ccxt/commits/7e62413e2585e12480cb43ee60b34c12170b941a)
+*  fix(coinex): fetchBalance switch statements (#22683) [06a611bffd](https://github.com/ccxt/ccxt/commits/06a611bffde1f014a9203bac90ab881c637f4375)
+*  feat(okx): Simple earn fixed endpoints (#22688) [531ef54aa4](https://github.com/ccxt/ccxt/commits/531ef54aa47525ba192548d628637dcdb7664158)
+*  bitmart: update the fetchTrades spot endpoint (#22694) [b4a30984c0](https://github.com/ccxt/ccxt/commits/b4a30984c0310e103425a2e43448da698e856dec)
+*  bitmart: update the fetchTrades spot endpoint (#22694) [2798ec654c](https://github.com/ccxt/ccxt/commits/2798ec654c921f9fef54f4e145c958454b819e6d)
+*  fix(coinbase): fetchAccounts default limit (#22698) [ccada04e6d](https://github.com/ccxt/ccxt/commits/ccada04e6dcbadac684e828f4f91c36071b6e712)
+*  BitMEX June 2024 campaign promotion [f10456f20b](https://github.com/ccxt/ccxt/commits/f10456f20b8d529c0b10a7bd1490ff2fed8e25b6)
+*  BitMEX June 2024 campaign promotion [b3099728ce](https://github.com/ccxt/ccxt/commits/b3099728ce4e9986d6a0c89469ae219aafe48426)
+*  4.3.38 [da14a6825a](https://github.com/ccxt/ccxt/commits/da14a6825a8463deb82a5ef0bf7ee16cf13dcc54)
+
+
+## 4.3.37 (2024-05-31)
+
+*  feat(kraken): adjust rl (#22661) [fa70c75eb0](https://github.com/ccxt/ccxt/commits/fa70c75eb0e01020bbf52de1429ca12b1f1d82bc)
+*  feat(kraken): adjust rl (#22661) [32c5a0c13d](https://github.com/ccxt/ccxt/commits/32c5a0c13df898e730f182635a1b0c5399d066c4)
+*  feat(htx): closePosition (#20604) [2d533b00e8](https://github.com/ccxt/ccxt/commits/2d533b00e8787c080b7331bc6fd18c90fe4ad651)
+*  feat(htx): closePosition (#20604) [e38261538f](https://github.com/ccxt/ccxt/commits/e38261538fded0a12709df473f5b7650231d38d3)
+*  fix(woofipro): signHash in php (#22673) [2a356da95b](https://github.com/ccxt/ccxt/commits/2a356da95b813efbcfc5aadef7b67a7e01bd3d4e)
+*  fix(cli.py): remove call reg to suppress warning (#22677) [e0b0134570](https://github.com/ccxt/ccxt/commits/e0b01345708841b4a942477c7a4827b343721f2a)
+*  fix(bitmart): remove abs for percentage in ticker (#22674) [a4057fe0c0](https://github.com/ccxt/ccxt/commits/a4057fe0c09cdf556097a9d0acefc7f98a3af1d4)
+*  fix(kraken): div trading fee by 100 (#22679) [465447742d](https://github.com/ccxt/ccxt/commits/465447742dae7db5d8d659e39f54848d3aa2d604)
+*  fix(static): disable failing static test (#22682) [e88a997611](https://github.com/ccxt/ccxt/commits/e88a997611c81b54a2274a935824fdf7e6e578e2)
+*  fix(static): disable failing static test (#22682) [fe889a9c7a](https://github.com/ccxt/ccxt/commits/fe889a9c7ad73dd7256f56e39cb0d0c0a901e5c0)
+*  4.3.37 [59f828be81](https://github.com/ccxt/ccxt/commits/59f828be815ede59d25839dbfdfc0adef179932e)
+
+
+## 4.3.36 (2024-05-29)
+
+*  bitget hedge mode (#22610) [ea583e9bcb](https://github.com/ccxt/ccxt/commits/ea583e9bcb84dafc89939fa10c1f8b7a70f84150)
+*  feat(zonda): new deposit & withdrawal endpoints (#22649) [0d23933b62](https://github.com/ccxt/ccxt/commits/0d23933b62b8499b5b628e525e46612b2a90c135)
+*  bitmart: watchOrders edit spot support (#22656) [63973bc22d](https://github.com/ccxt/ccxt/commits/63973bc22dd90c672ec0f5baca9cb3d4bfe13619)
+*  fix(bingx): symbol inference on trades (#22659) [3116625353](https://github.com/ccxt/ccxt/commits/3116625353118ca4e12c63596169056a90009503)
+*  feat(orderbook): type variable (#22660) [f11523b6b7](https://github.com/ccxt/ccxt/commits/f11523b6b78f37ff113dcbac2cc16604f3c03682)
+*  fix(bitfinex2) handleOrderBook (#22658) [95c853ebd9](https://github.com/ccxt/ccxt/commits/95c853ebd9dc7a68eb796269b83b1c37dc5628a2)
+*  fix(bitfinex2) handleOrderBook (#22658) [a8da25b792](https://github.com/ccxt/ccxt/commits/a8da25b79240558807a85f5332453a339a9a74f4)
+*  4.3.36 [ccd3991f4f](https://github.com/ccxt/ccxt/commits/ccd3991f4fa4272e901a3cbf1d50e72341b4766c)
+
+
+## 4.3.35 (2024-05-28)
+
+*  feat(base): uncamelcase python/php base invocations programatically (#13882) [047d9c21fd](https://github.com/ccxt/ccxt/commits/047d9c21fdd367abbe70456feedb123763730387)
+*  feat(base): uncamelcase python/php base invocations programatically (#13882) [ff48337319](https://github.com/ccxt/ccxt/commits/ff48337319d6c6d32921dfcd2db2e605dece5557)
+*  alpaca cancelOrder unified response (#22635) [13370d567b](https://github.com/ccxt/ccxt/commits/13370d567bb63ab683ba7feaa7eccee24388d6bb)
+*  coinex: withdraw v2 (#22637) [d6ca213c75](https://github.com/ccxt/ccxt/commits/d6ca213c75ea24b27dee602a4e7901079103b63d)
+*  coinex: withdraw v2 (#22637) [132fa3c588](https://github.com/ccxt/ccxt/commits/132fa3c588c664c20fa5cb41a6209893ba8520cc)
+*  fix(bitmart): fetchTickers (#22640) [ecd4c94830](https://github.com/ccxt/ccxt/commits/ecd4c94830935d095b7536e9a7d80653e48ff1bb)
+*  fix(bitmart): fetchTickers (#22640) [b4d410fc28](https://github.com/ccxt/ccxt/commits/b4d410fc2806fd39d2bde9fbf661caf1e0d6f7e4)
+*  fix(kraken): since handling (#22641) [7e869a9a75](https://github.com/ccxt/ccxt/commits/7e869a9a753a28478b3eb056bbb0a22c4e111bf9)
+*  fix(kraken): since handling (#22641) [fbb917bb70](https://github.com/ccxt/ccxt/commits/fbb917bb7029453beb5d476855fcc4f95c0270e7)
+*  fix(kraken): since off by 1 fix (#22642) [953dcf4604](https://github.com/ccxt/ccxt/commits/953dcf460495eba81b518560f8de345924c9adb4)
+*  fix(bitget): watchOrders different subs (#22644) [72cc0be494](https://github.com/ccxt/ccxt/commits/72cc0be494273faaeaed1181d6b2d2de5348960f)
+*  fix(bitget): watchOrders different subs (#22644) [9e7912deba](https://github.com/ccxt/ccxt/commits/9e7912deba71bed6080a163ffa12f57531aebfe4)
+*  feat(coinbase): add fetchTradingFees (#22645) [43928cbf33](https://github.com/ccxt/ccxt/commits/43928cbf33be5b1161b55933810bc50e3416c8c6)
+*  feat(coinbase): add fetchTradingFees (#22645) [bc0fc87cdc](https://github.com/ccxt/ccxt/commits/bc0fc87cdc062eafb177b9f8f05890b07d38a8a7)
+*  4.3.35 [c7405660b6](https://github.com/ccxt/ccxt/commits/c7405660b6459ff0f03efcd09853041c37758618)
+
+
+## 4.3.34 (2024-05-27)
+
+*  feat(binance): add v1/account/info (#22627) [ee170888b7](https://github.com/ccxt/ccxt/commits/ee170888b72d9837163d8a7a60c2328df07648cc)
+*  feat(binance): add v1/account/info (#22627) [06942da0e3](https://github.com/ccxt/ccxt/commits/06942da0e362f6ff33a8741ab2f49a648e8dc4d5)
+*  fix(handleErrors): types (#22618) [99789a4955](https://github.com/ccxt/ccxt/commits/99789a49558c8d43d1ea6316450e7e6bb4748f8f)
+*  feat(exchange,binance, gate, bybit, okx, bitmex): add watchLiquidations and watchMyLiquidations, add tests for fetch and watchLiquidations (#19832) [1c8d30f8e8](https://github.com/ccxt/ccxt/commits/1c8d30f8e89ef4e67689ecc9c4fbca305d974b4d)
+*  feat(exchange,binance, gate, bybit, okx, bitmex): add watchLiquidations and watchMyLiquidations, add tests for fetch and watchLiquidations (#19832) [ee19db786b](https://github.com/ccxt/ccxt/commits/ee19db786b62b1080883eb6fe5da6ff1b963671f)
+*  4.3.34 [780589bbe2](https://github.com/ccxt/ccxt/commits/780589bbe2896df91636f29af6b267c4fd5b71a1)
+
+
+## 4.3.33 (2024-05-26)
+
+*  fix broken docu build (#22620) [313b394e9e](https://github.com/ccxt/ccxt/commits/313b394e9e566f35cd5973b5b786d60874e4c11f)
+*  chore: update changelog (#22624) [f6e8292cbd](https://github.com/ccxt/ccxt/commits/f6e8292cbd04226a61e4f4f63eb037905e3c1cd8)
+*  fix(bitget): swap order placement weight adjustment (#22625) [730597a926](https://github.com/ccxt/ccxt/commits/730597a9262425c7a3f2f7951b12ac8e46820e66)
+*  fix(bitget): swap order placement weight adjustment (#22625) [d741ac1b95](https://github.com/ccxt/ccxt/commits/d741ac1b95f61a2e75d027602bb8db98a38ddbc2)
+*  4.3.33 [4eed5ce518](https://github.com/ccxt/ccxt/commits/4eed5ce51859a0ed243f6a5db297b9dce749d2a9)
+
+
 ## 4.3.32 (2024-05-25)
 
 *  coinex: fetchLeverages v2 (#22616) [02c2f8063f](https://github.com/ccxt/ccxt/commits/02c2f8063f221d611bf9518510c420a05a5cceec)
