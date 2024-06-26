@@ -8286,7 +8286,7 @@ export default class bybit extends Exchange {
         return tiers;
     }
 
-    parseMarketLeverageTiers (info, market: Market = undefined): LeverageTier[] {
+    parseMarketLeverageTiers (info: Dict, market: Market = undefined): LeverageTier[] {
         //
         //  [
         //      {
