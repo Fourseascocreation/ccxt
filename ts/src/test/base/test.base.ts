@@ -11,17 +11,25 @@ import './functions/test.number.js'
 import './functions/test.datetime.js'
 import './functions/test.crypto.js'
 
-const { Exchange, index, aggregate, unCamelCase } = functions
+const { Exchange, index, aggregate, unCamelCase, TICK_SIZE, DECIMAL_PLACES } = functions
 
 const equal = strictEqual
 
 global.log =  ololog
 
-function testCalculateFee () {
+function testCalculateFee (precisionMode) {
+    const exchange = new Exchange ({
+        'id': 'mock',
+        'markets': {
+            'FOO/BAR': market,
+        },
+        'precisionMode': precisionMode,
+    })
+
     const price  = 100.00
     const amount = 10.00
-    const taker  = 0.0025
-    const maker  = 0.0010
+    const taker  = exchange.parseNumber ('0.0025')
+    const maker  = exchange.parseNumber ('0.0010')
     const fees   = { taker, maker }
     const market = {
         'id':     'foobar',
@@ -30,18 +38,11 @@ function testCalculateFee () {
         'quote':  'BAR',
         'taker':   taker,
         'maker':   maker,
-        'precision': {
-            'amount': 8,
-            'price': 8,
-        },
-    }
-
-    const exchange = new Exchange ({
-        'id': 'mock',
-        'markets': {
-            'FOO/BAR': market,
-        },
-    })
+        'precision':{
+            'amount': exchange.parseNumber (exchange.isTickPrecision() ? '1e-8' : '8'),
+            'price': exchange.parseNumber (exchange.isTickPrecision() ? '1e-8' : '8'),
+        }
+    };
 
     Object.keys (fees).forEach ((takerOrMaker) => {
 
@@ -200,7 +201,8 @@ function testUnCamelCase () {
 // ----------------------------------------------------------------------------
 
 function testBase () {
-    testCalculateFee ()
+    testCalculateFee (TICK_SIZE);
+    testCalculateFee (DECIMAL_PLACES);
     // testExchangeConfigExtension () // skipped
     testAggregate ()
     testSafeBalance ()
