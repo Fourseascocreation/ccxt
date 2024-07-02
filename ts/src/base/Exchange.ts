@@ -1665,6 +1665,11 @@ export default class Exchange {
     }
 
     onClose (client, error) {
+        const options = this.safeDict (this.options, 'ws');
+        const useClearCache = this.safeBool (options, 'clearCacheOnClose', true);
+        if (useClearCache) {
+            this.clearCache();
+        }
         if (client.error) {
             // connection closed due to an error, do nothing
         } else {
@@ -1835,6 +1840,20 @@ export default class Exchange {
 
     // ------------------------------------------------------------------------
     // METHODS BELOW THIS LINE ARE TRANSPILED FROM JAVASCRIPT TO PYTHON AND PHP
+
+    clearCache () {
+        this.balance = {};
+        this.orderbooks = {};
+        this.tickers = {};
+        this.liquidations = {};
+        this.orders = undefined;
+        this.trades = {};
+        this.transactions = {};
+        this.ohlcvs = {};
+        this.myLiquidations = {};
+        this.myTrades = undefined;
+        this.positions = undefined;
+    }
 
     safeBoolN (dictionaryOrList, keys: IndexType[], defaultValue: boolean = undefined): boolean | undefined {
         /**
