@@ -4358,7 +4358,7 @@ export default class mexc extends Exchange {
         return this.parseLeverageTiers (data, symbols, 'symbol');
     }
 
-    parseMarketLeverageTiers (info, market: Market = undefined): LeverageTier[] {
+    parseMarketLeverageTiers (info: any[], market: Market = undefined): LeverageTier[] {
         //
         //    {
         //        "symbol": "BTC_USDT",

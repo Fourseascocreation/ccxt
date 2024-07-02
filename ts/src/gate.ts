@@ -5797,7 +5797,7 @@ export default class gate extends Exchange {
         return tiers;
     }
 
-    parseMarketLeverageTiers (info, market: Market = undefined): LeverageTier[] {
+    parseMarketLeverageTiers (info: any[], market: Market = undefined): LeverageTier[] {
         //
         //     [
         //         {
