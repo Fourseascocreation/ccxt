@@ -3390,6 +3390,7 @@ export default class Exchange {
         //     ]
         //
         const reduced = {};
+        const feesWithoutCurrency = [];
         for (let i = 0; i < fees.length; i++) {
             const fee = fees[i];
             const feeCurrencyCode = this.safeString (fee, 'currency');
@@ -3415,10 +3416,13 @@ export default class Exchange {
                         reduced[feeCurrencyCode][rateKey]['rate'] = rate;
                     }
                 }
+            } else {
+                feesWithoutCurrency.push (fee);
             }
         }
         let result = [];
-        const feeValues = Object.values (reduced);
+        let feeValues = Object.values (reduced);
+        feeValues = feesWithoutCurrency.concat (feeValues);
         for (let i = 0; i < feeValues.length; i++) {
             const reducedFeeValues = Object.values (feeValues[i]);
             result = this.arrayConcat (result, reducedFeeValues);
